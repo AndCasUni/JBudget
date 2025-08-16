@@ -1,0 +1,135 @@
+/* ===========================
+   Tema chiaro - Light Theme
+   =========================== */
+
+/* Sfondo principale e colore testo */
+.root {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+
+/* Label */
+.label {
+    -fx-text-fill: black;
+}
+
+/* Pulsanti */
+.button {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: black;
+}
+.button:hover {
+    -fx-background-color: #cfcfcf;
+}
+
+/* RadioButton & CheckBox */
+.radio-button,
+.check-box {
+    -fx-text-fill: black;
+    -fx-mark-color: black;
+}
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: #8a8a8a;
+}
+.check-box:selected .box {
+    -fx-background-color: #e0e0e0;
+}
+.radio-button .radio {
+    -fx-background-color: white;
+    -fx-border-color: #8a8a8a;
+}
+.radio-button:selected .radio {
+    -fx-background-color: #e0e0e0;
+}
+
+/* ListView - stile generale */
+.list-view {
+    -fx-background-color: white;
+    -fx-control-inner-background: white;
+    -fx-cell-hover-color: #f5f5f5;
+}
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;
+}
+.list-view .list-cell:filled:selected,
+.list-view .list-cell:filled:selected:focused {
+    -fx-background-color: #d0d0d0;
+    -fx-text-fill: black;
+}
+.list-view .list-cell:odd {
+    -fx-background-color: rgba(0,0,0,0.02);
+}
+.list-view .placeholder .label {
+    -fx-text-fill: #555555;
+}
+
+/* ListView con id add_tags (bordo nero) */
+#add_tags {
+    -fx-border-color: black;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+#add_tags .list-cell {
+    -fx-text-fill: black;
+}
+
+/* ComboBox - opzioni */
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+}
+.combo-box-popup .list-view .list-cell {
+    -fx-text-fill: black;
+}
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: black;
+}
+
+/* TableView */
+.table-view {
+    -fx-base: white;
+    -fx-control-inner-background: white;
+    -fx-background-color: white;
+}
+.table-view .column-header-background {
+    -fx-background-color: #f0f0f0;
+}
+.table-view .column-header,
+.table-view .column-header .label {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: black;
+}
+.table-view .filler {
+    -fx-background-color: #f0f0f0;
+}
+
+/* TextField e TextArea */
+.text-field,
+.text-area {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-prompt-text-fill: #777777;
+    -fx-border-color: #bcbcbc;
+}
+
+/* MenuBar */
+.menu-bar {
+    -fx-background-color: #f0f0f0;
+}
+.menu-bar .label {
+    -fx-text-fill: black;
+}
+
+/* ScrollBar */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar .thumb {
+    -fx-background-color: #c0c0c0;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: #a0a0a0;
+}

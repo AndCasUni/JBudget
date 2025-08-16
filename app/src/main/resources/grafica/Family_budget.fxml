@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<TabPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.MainController" prefWidth="1000.0" prefHeight="700.0">
+    <tabs>
+        <Tab fx:id="tabAggiungi" text="Aggiungi"/>
+        <Tab fx:id="tabRevisione" text="Revisione"/>
+        <Tab fx:id="tabConfronto" text="Confronto"/>
+        <Tab fx:id="tabImpostazioni" text="Impostazioni"/>
+    </tabs>
+</TabPane>

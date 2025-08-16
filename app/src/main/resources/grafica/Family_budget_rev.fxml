@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.RevisionController">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+            <children>
+                <Label layoutX="14.0" layoutY="25.0" text="Autore" />
+                <Label layoutX="423.0" layoutY="25.0" text="Da data" />
+                <Label layoutX="423.0" layoutY="63.0" text="A data" />
+                <DatePicker fx:id="rev_dadata" layoutX="475.0" layoutY="21.0" />
+                <DatePicker fx:id="rev_adata" layoutX="475.0" layoutY="59.0" />
+                <Label layoutX="423.0" layoutY="103.0" text="Tags" />
+                <ToggleButton fx:id="rev_casa" layoutX="423.0" layoutY="142.0" mnemonicParsing="false" text="Casa">
+            <toggleGroup>
+               <ToggleGroup fx:id="rev_group" />
+            </toggleGroup></ToggleButton>
+                <ToggleButton fx:id="rev_cibo" layoutX="538.0" layoutY="142.0" mnemonicParsing="false" text="Cibo" />
+                <ToggleButton fx:id="rev_lavoro" layoutX="662.0" layoutY="143.0" mnemonicParsing="false" text="Lavoro" />
+                <ToggleButton fx:id="rev_sport" layoutX="423.0" layoutY="194.0" mnemonicParsing="false" text="Sport" />
+                <ToggleButton fx:id="rev_salute" layoutX="538.0" layoutY="194.0" mnemonicParsing="false" text="Salute" />
+                <ToggleButton fx:id="rev_hobby" layoutX="662.0" layoutY="194.0" mnemonicParsing="false" text="Hobby" />
+                <Button fx:id="rev_cerca" layoutX="28.0" layoutY="169.0" mnemonicParsing="false" onAction="#cerca" text="Cerca" />
+                <TableView fx:id="rev_lista" layoutX="-2.0" layoutY="253.0" prefHeight="385.0" prefWidth="918.0">
+                    <columns>
+                        <TableColumn fx:id="rev_colautore" prefWidth="75.0" text="Autore" />
+                        <TableColumn fx:id="rev_coldesc" prefWidth="75.0" text="Descrizione" />
+                        <TableColumn fx:id="rev_coldata" prefWidth="75.0" text="Data" />
+                        <TableColumn fx:id="rev_colimpo" prefWidth="75.0" text="Importo" />
+                        <TableColumn fx:id="rev_coltag1" prefWidth="75.0" text="Tag" />
+                        <TableColumn fx:id="rev_coltag2" prefWidth="75.0" text="Tag" />
+                        <TableColumn fx:id="rev_coltag3" prefWidth="75.0" text="Tag" />
+                    </columns>
+                </TableView>
+                <CheckBox fx:id="rev_entrate" layoutX="28.0" layoutY="76.0" mnemonicParsing="false" text="Entrate" />
+                <CheckBox fx:id="rev_uscite" layoutX="116.0" layoutY="76.0" mnemonicParsing="false" text="Uscite" />
+                <ComboBox fx:id="rev_autore" layoutX="64.0" layoutY="21.0" prefWidth="150.0" />
+            </children></AnchorPane>
+</AnchorPane>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.AddController">
+    <AnchorPane fx:id="add_in" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <children>
+            <Label layoutX="686.0" layoutY="65.0" prefHeight="18.0" prefWidth="202.0" text="Ultimi aggiunti" />
+            <Label layoutX="20.0" layoutY="17.0" text="Autore" />
+            <Label layoutX="280.0" layoutY="17.0" text="Descrizione" />
+            <Label layoutX="16.0" layoutY="66.0" text="Importo" />
+            <RadioButton fx:id="add_entrata" layoutX="392.0" layoutY="66.0" mnemonicParsing="false" text="Entrata">
+                <toggleGroup>
+                    <ToggleGroup fx:id="type" />
+                </toggleGroup>
+            </RadioButton>
+            <DatePicker fx:id="add_data" layoutX="76.0" layoutY="104.0" prefHeight="26.0" prefWidth="150.0" />
+            <Label layoutX="20.0" layoutY="109.0" text="Data" />
+            <CheckBox fx:id="add_rep" layoutX="392.0" layoutY="108.0" mnemonicParsing="false" onAction="#setVisible" text="Ripetizione" />
+            <ChoiceBox fx:id="add_freq" layoutX="341.0" layoutY="176.0" prefWidth="150.0" />
+            <Label layoutX="341.0" layoutY="151.0" text="Frequenza" />
+            <Label layoutX="540.0" layoutY="151.0" text="Occorrenze" />
+            <TextField fx:id="add_desc" layoutX="355.0" layoutY="13.0" prefHeight="26.0" prefWidth="317.0" />
+            <TextField fx:id="add_imp" layoutX="77.0" layoutY="62.0" />
+            <TextField fx:id="add_occ" layoutX="535.0" layoutY="176.0" prefHeight="26.0" prefWidth="106.0" />
+            <ComboBox fx:id="add_sottocat" layoutX="422.0" layoutY="266.0" prefWidth="150.0" />
+            <Button fx:id="add_addtag" layoutX="226.0" layoutY="338.0" mnemonicParsing="false" onAction="#addTag" text="Aggiungi tag" />
+            <RadioButton fx:id="add_out" layoutX="487.0" layoutY="66.0" mnemonicParsing="false" text="Uscita" toggleGroup="$type" />
+            <Label layoutX="19.0" layoutY="225.0" text="Categorie" />
+            <Label layoutX="434.0" layoutY="243.0" text="Sottocategorie" />
+            <ToggleButton fx:id="add_casa" layoutX="22.0" layoutY="266.0" mnemonicParsing="false" text="Casa">
+                <toggleGroup>
+                    <ToggleGroup fx:id="main_tag" />
+                </toggleGroup>
+            </ToggleButton>
+            <ToggleButton fx:id="add_cibo" contentDisplay="TOP" layoutX="79.0" layoutY="266.0" mnemonicParsing="false" text="Cibo" toggleGroup="$main_tag">
+
+            </ToggleButton>
+
+            <ToggleButton fx:id="add_lavoro" contentDisplay="TOP" layoutX="138.0" layoutY="266.0" mnemonicParsing="false" text="Lavoro" toggleGroup="$main_tag">
+
+            </ToggleButton>
+
+            <ToggleButton fx:id="add_sport" contentDisplay="TOP" layoutX="227.0" layoutY="266.0" mnemonicParsing="false" text="Sport" toggleGroup="$main_tag">
+
+            </ToggleButton>
+
+            <ToggleButton fx:id="add_salute" contentDisplay="TOP" layoutX="293.0" layoutY="266.0" mnemonicParsing="false" text="Salute" toggleGroup="$main_tag">
+
+            </ToggleButton>
+
+            <ToggleButton fx:id="add_hobby" contentDisplay="TOP" layoutX="355.0" layoutY="266.0" mnemonicParsing="false" text="Hobby" toggleGroup="$main_tag">
+
+            </ToggleButton>
+
+            <CheckBox fx:id="add_rata" layoutX="490.0" layoutY="109.0" mnemonicParsing="false" onAction="#setVisible" text="Rata" />
+            <ListView fx:id="add_tags" layoutX="22.0" layoutY="318.0" prefHeight="219.0" prefWidth="170.0" />
+            <Button fx:id="add_deltag" layoutX="226.0" layoutY="389.0" mnemonicParsing="false" onAction="#delTag" text="Rimuovi tag" />
+            <TableView fx:id="add_recenti" layoutX="686.0" layoutY="89.0" prefHeight="402.0" prefWidth="232.0">
+                <columns>
+                    <TableColumn fx:id="add_recautore" prefWidth="75.0" text="Autore" />
+                    <TableColumn fx:id="add_recimporto" prefWidth="75.0" text="Importo" />
+                    <TableColumn fx:id="add_recdata" prefWidth="75.0" text="Data" />
+                </columns>
+            </TableView>
+            <ComboBox fx:id="add_autore" layoutX="76.0" layoutY="14.0" prefWidth="150.0" />
+        </children></AnchorPane>
+   <Button fx:id="add_clean" layoutX="452.0" layoutY="342.0" mnemonicParsing="false" onAction="#cleanAll" prefHeight="42.0" prefWidth="80.0" text="Pulisci" />
+      <Button fx:id="add_insert" layoutX="451.0" layoutY="430.0" mnemonicParsing="false" onAction="#addInsert" prefHeight="42.0" prefWidth="80.0" text="Salva" />
+</AnchorPane>

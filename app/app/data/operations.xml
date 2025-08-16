@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<operations>
+        
+    <operation>
+                
+        <author>Mario</author>
+                
+        <description>Spesa settimanale supermercato</description>
+                
+        <date>10/08/2025</date>
+                
+        <amount>-85.50</amount>
+                
+        <tags>
+                        
+            <tag id="6">Spesa alimentare</tag>
+                        
+            <tag id="7">Ristoranti/Bar</tag>
+                    
+        </tags>
+            
+    </operation>
+        
+    <operation>
+                
+        <author>Anna</author>
+                
+        <description>Stipendio mensile</description>
+                
+        <date>01/08/2025</date>
+                
+        <amount>1850.00</amount>
+                
+        <tags>
+                        
+            <tag id="9">Lavoro</tag>
+                        
+            <tag id="10">Trasporti lavoro</tag>
+                    
+        </tags>
+            
+    </operation>
+        
+    <operation>
+                
+        <author>Luca</author>
+                
+        <description>Abbonamento palestra trimestrale</description>
+                
+        <date>20/07/2025</date>
+                
+        <amount>-120.00</amount>
+                
+        <tags>
+                        
+            <tag id="13">Sport</tag>
+                        
+            <tag id="14">Abbonamenti palestra</tag>
+                    
+        </tags>
+            
+    </operation>
+        
+    <operation>
+                
+        <author>Mario</author>
+                
+        <description>Visita medica specialistica</description>
+                
+        <date>05/08/2025</date>
+                
+        <amount>-90.00</amount>
+                
+        <tags>
+                        
+            <tag id="17">Salute</tag>
+                        
+            <tag id="18">Visite mediche</tag>
+                    
+        </tags>
+            
+    </operation>
+        
+    <operation>
+                
+        <author>Paolo</author>
+                
+        <description>Vendita oggetto usato</description>
+                
+        <date>08/08/2025</date>
+                
+        <amount>150.00</amount>
+                
+        <tags>
+                        
+            <tag id="21">Hobby</tag>
+                        
+            <tag id="22">Libri/Musica/Film</tag>
+                    
+        </tags>
+            
+    </operation>
+    
+    <operation>
+        <author>Anna</author>
+        <description>fge</description>
+        <date>15/08/2025</date>
+        <amount>3.0</amount>
+        <tags>
+            <tag id="1">Hobby</tag>
+        </tags>
+    </operation>
+</operations>

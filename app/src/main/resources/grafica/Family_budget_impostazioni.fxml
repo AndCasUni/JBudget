@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.ImpoController">
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <children>
+            <Button fx:id="impo_mod" layoutX="187.0" layoutY="77.0" mnemonicParsing="false" text="Cambia" />
+            <Label layoutX="46.0" layoutY="81.0" text="Modalità chiaro/scuro" />
+            <ComboBox fx:id="impo_valuta" layoutX="163.0" layoutY="141.0" prefHeight="26.0" prefWidth="76.0" />
+            <Label layoutX="52.0" layoutY="145.0" text="Valuta" />
+            <Button fx:id="impo_reset" layoutX="433.0" layoutY="77.0" mnemonicParsing="false" text="Reset impostazioni" />
+            <Button fx:id="impo_cancella" layoutX="433.0" layoutY="142.0" mnemonicParsing="false" text="Cancella dati" />
+        </children></AnchorPane>
+   <Button fx:id="impo_cambioval" layoutX="257.0" layoutY="141.0" mnemonicParsing="false" text="Cambia" />
+  </AnchorPane>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exchange_rates>
+    <currency code="EUR" name="Euro">
+        <to_EUR>1.0000</to_EUR>
+        <from_EUR>1.0000</from_EUR>
+    </currency>
+    <currency code="USD" name="US Dollar">
+        <to_EUR>0.8614</to_EUR>
+        <from_EUR>1.1606</from_EUR>
+    </currency>
+    <currency code="GBP" name="British Pound Sterling">
+        <to_EUR>1.1601</to_EUR>
+        <from_EUR>0.8621</from_EUR>
+    </currency>
+    <currency code="JPY" name="Japanese Yen">
+        <to_EUR>0.00580</to_EUR>
+        <from_EUR>172.30</from_EUR>
+    </currency>
+    <currency code="CAD" name="Canadian Dollar">
+        <to_EUR>0.6241</to_EUR>
+        <from_EUR>1.6015</from_EUR>
+    </currency>
+</exchange_rates>

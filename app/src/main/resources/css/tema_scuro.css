@@ -1,0 +1,126 @@
+    .root {
+    -fx-background-color: #1e1e1e;
+    -fx-text-fill: white;
+}
+.label {
+    -fx-text-fill: white;
+}
+
+.button {
+    -fx-background-color: #333333;
+    -fx-text-fill: white;
+}
+
+/* Testo delle etichette in bianco */
+.radio-button,
+.check-box {
+    -fx-text-fill: white;
+}
+
+/* Colore del segno (dot/spunta) in tema scuro */
+.radio-button,
+.check-box {
+    -fx-mark-color: white;               /* colore del dot/spunta */
+}
+
+/* Aspetto della “box”/“radio” in dark */
+.check-box .box {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #8a8a8a;
+}
+.check-box:selected .box {
+    -fx-background-color: #3a3a3a;
+}
+
+.radio-button .radio {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #8a8a8a;
+}
+.radio-button:selected .radio {
+    -fx-background-color: #3a3a3a;
+}
+
+/* ===========================
+   ListView
+   =========================== */
+
+/* Sfondo della ListView e area interna */
+.list-view {
+    -fx-background-color: #1e1e1e;              /* bordo/esterno */
+    -fx-control-inner-background: #1e1e1e;      /* interno/celle */
+    -fx-cell-hover-color: #2a2a2a;
+}
+
+/* Celle: testo bianco su sfondo scuro */
+.list-view .list-cell {
+    -fx-background-color: transparent;          /* eredita dallo sfondo */
+    -fx-text-fill: white;
+}
+
+/* Riga selezionata (e focus) */
+.list-view .list-cell:filled:selected,
+.list-view .list-cell:filled:selected:focused {
+    -fx-background-color: #333333;
+    -fx-text-fill: white;
+}
+
+/* Riga “vuota” per alternanza più gradevole (opzionale) */
+.list-view .list-cell:odd {
+    -fx-background-color: rgba(255,255,255,0.02);
+}
+
+/* Testo placeholder (“Nessun elemento”) */
+.list-view .placeholder .label {
+    -fx-text-fill: #cfcfcf;
+}
+
+/* Header TableView (solo se usi TableView) */
+.table-view {
+    -fx-base: #1e1e1e;
+    -fx-control-inner-background: #1e1e1e;
+    -fx-background-color: #1e1e1e;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #2b2b2b;
+}
+
+.table-view .column-header,
+.table-view .column-header .label {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: white;
+}
+
+.table-view .filler {
+    -fx-background-color: #2b2b2b;
+}
+
+/* === Bordo bianco per la ListView con id add_tags === */
+#add_tags {
+    -fx-border-color: white;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
+}
+
+/* Mantieni il testo bianco all'interno */
+#add_tags .list-cell {
+    -fx-text-fill: white;
+}
+
+/* === ComboBox: opzioni bianche con testo nero === */
+
+/* Sfondo e testo dell'elenco a discesa */
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-text-fill: black;
+}
+
+/* Elemento selezionato in hover */
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: black;
+}

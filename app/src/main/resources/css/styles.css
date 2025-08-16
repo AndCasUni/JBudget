@@ -1,0 +1,13 @@
+/* Bottone "Cancella dati" rosso */
+#impo_cancella {
+    background-color: #e02424; /* rosso */
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#impo_cancella:hover {
+    background-color: #b71c1c; /* rosso più scuro su hover */
+}
