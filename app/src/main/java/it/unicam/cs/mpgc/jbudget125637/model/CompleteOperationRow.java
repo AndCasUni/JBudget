@@ -25,6 +25,13 @@ public class CompleteOperationRow {
         this.tag3 = new SimpleStringProperty(tag3);
     }
 
+    public CompleteOperationRow(Operation op) {
+        this(op.getAutore(), op.getDesc(), op.getDate(), op.getAmount(),
+                op.getTags().size() > 0 ? op.getTags().get(0) : "",
+                op.getTags().size() > 1 ? op.getTags().get(1) : "",
+                op.getTags().size() > 2 ? op.getTags().get(2) : "");
+    }
+
     // Getter tradizionali
     public String getAuthor() { return author.get(); }
     public String getDescription() { return description.get(); }

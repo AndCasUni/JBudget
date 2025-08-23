@@ -11,3 +11,21 @@
 #impo_cancella:hover {
     background-color: #b71c1c; /* rosso più scuro su hover */
 }
+
+/* ToggleButton non selezionato (default) */
+.toggle-button {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 5px;
+}
+
+/* ToggleButton selezionato */
+.toggle-button:selected {
+    -fx-background-color: #87CEFA; /* celeste */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: #1E90FF;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}

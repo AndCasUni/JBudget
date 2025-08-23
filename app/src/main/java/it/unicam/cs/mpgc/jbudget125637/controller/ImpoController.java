@@ -47,7 +47,13 @@ public class ImpoController {
     List<Currency> codes;
 
 
-    @FXML
+    /**
+     * Inizializza la schermata delle impostazioni.
+     * - Carica le impostazioni salvate.
+     * - Carica i codici valuta da {@code currency.xml}.
+     * - Popola la ComboBox con i codici valuta disponibili.
+     * - Imposta gli handler per i pulsanti (reset, cancella, modifica tema, cambio valuta).
+     */
     public void initialize() {
         loadSettings();
         codes = loadCurrencyCodes();
@@ -66,6 +72,14 @@ public class ImpoController {
         }
     }
 
+    /**
+     * Converte tutte le transazioni in una valuta selezionata.
+     * - Se {@code reset = true}, riporta tutte le transazioni in Euro.
+     * - Altrimenti converte da Euro alla valuta selezionata nella ComboBox.
+     * - Salva il risultato in {@code operations.xml}.
+     *
+     * @param reset se {@code true}, riporta sempre le transazioni in Euro.
+     */
     private void changeValue(boolean reset) {
         String selectedCurrency = impo_valuta.getValue().toString();
         List<Operation> scrittura;
@@ -107,6 +121,14 @@ public class ImpoController {
         saveSettings();
 
     }
+
+    /**
+     * Converte tutte le transazioni correnti in Euro.
+     * - Legge i dati da {@code operations.xml}.
+     * - Usa il tasso {@code to_EUR} della valuta attuale.
+     *
+     * @return lista di transazioni convertite in Euro.
+     */
     public List<Operation> transactionsToEuro() {
         //fai tornare tutte le transazioni ad euro
         // leggi tutte le transazioni da operations.xml
@@ -130,6 +152,12 @@ public class ImpoController {
         return converted;
     }
 
+    /**
+     * Salva una lista di operazioni in un file XML.
+     *
+     * @param operations lista di operazioni da salvare.
+     * @param filePath percorso del file XML di destinazione.
+     */
     public void saveOperationsToXml(List<Operation> operations, String filePath) {
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -160,6 +188,12 @@ public class ImpoController {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Carica le operazioni dal file {@code operations.xml}.
+     *
+     * @return lista di operazioni presenti nel file XML.
+     */
     public List<Operation> loadOperations() {
         List<Operation> operations = new ArrayList<>();
         try (FileInputStream in = new FileInputStream("app/data/operations.xml")) {
@@ -193,6 +227,13 @@ public class ImpoController {
         }
         return operations;
     }
+
+    /**
+     * Cancella i dati delle operazioni.
+     * - Mostra una finestra di conferma.
+     * - Se confermato, sposta il file {@code operations.xml} in {@code operations_backup.xml}.
+     * - Crea un nuovo file {@code operations.xml} vuoto e valido.
+     */
     private void cancelData() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Conferma cancellazione");
@@ -237,7 +278,13 @@ public class ImpoController {
         }
     }
 
-
+    /**
+     * Modifica il tema dell’applicazione (chiaro/scuro).
+     * - Se {@code reset = true}, imposta sempre il tema chiaro.
+     * - Altrimenti alterna tra tema chiaro e scuro.
+     *
+     * @param reset se {@code true}, forza il tema chiaro.
+     */
     private void modifySettings(boolean reset) {
         Scene scene = impo_mod.getScene();
 
@@ -255,6 +302,12 @@ public class ImpoController {
         saveSettings();
     }
 
+
+    /**
+     * Carica i codici delle valute dal file {@code currency.xml}.
+     *
+     * @return lista di oggetti {@link Currency} con codice, toEuro e fromEuro.
+     */
     private List<Currency> loadCurrencyCodes() {
         List<Currency> currencies = new ArrayList<>();
         try (FileInputStream in = new FileInputStream("app/data/currency.xml")) {
@@ -274,12 +327,24 @@ public class ImpoController {
         }
         return currencies;
     }
+
+    /**
+     * Restituisce il file delle impostazioni utente ({@code settings.properties}).
+     * Se la cartella {@code app/config} non esiste, viene creata.
+     *
+     * @return file delle impostazioni.
+     */
     private File getSettingsFile() {
         File configDir = new File("app/config");
         if (!configDir.exists()) configDir.mkdirs();
         return new File(configDir, "settings.properties");
     }
-    // Salva le impostazioni
+
+    /**
+     * Salva le impostazioni utente correnti:
+     * - Valuta selezionata.
+     * - Tema attivo (chiaro/scuro).
+     */
     private void saveSettings() {
         Properties props = new Properties();
         props.setProperty("currency", impo_valuta.getValue() != null ? impo_valuta.getValue().toString() : "EUR");
@@ -292,8 +357,14 @@ public class ImpoController {
     }
 
 
-    // Carica le impostazioni all’avvio
-
+    /**
+     * Carica le impostazioni utente da {@code settings.properties}.
+     * Se il file non esiste, imposta valori di default:
+     * - Valuta = EUR
+     * - Tema = chiaro
+     *
+     * Al termine applica il tema corrente alla scena.
+     */
     private void loadSettings() {
         Properties props = new Properties();
         try (FileInputStream in = new FileInputStream(getSettingsFile())) {
@@ -310,6 +381,11 @@ public class ImpoController {
         Platform.runLater(this::applyTheme);
 
     }
+
+    /**
+     * Applica il tema corrente alla scena (chiaro o scuro).
+     * Se la scena non è disponibile, non fa nulla.
+     */
     private void applyTheme() {
         Scene scene = impo_mod.getScene();
         if (scene == null) return; // Evita NullPointerException
@@ -320,6 +396,12 @@ public class ImpoController {
             scene.getStylesheets().add(getClass().getResource("/css/tema_chiaro.css").toExternalForm());
         }
     }
+
+    /**
+     * Reimposta i campi delle impostazioni:
+     * - Riporta il tema a chiaro.
+     * - Riporta tutte le transazioni in Euro.
+     */
     private void resetFields() {
         modifySettings(true);
         changeValue(true);

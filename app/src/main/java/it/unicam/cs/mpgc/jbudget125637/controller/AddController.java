@@ -75,8 +75,13 @@ public class AddController {
 
     String lastId;
 
+    /**
+     * Inizializza la vista e i componenti della form.
+     * - Configura le colonne della tabella delle operazioni recenti.
+     * - Carica frequenze, sottocategorie e autori.
+     * - Imposta i listener per la selezione di categorie e checkBox (ricorrenza/rata).
+     */
     public void initialize() {
-
         add_recautore.setCellValueFactory(new PropertyValueFactory<>("author"));
         add_recdata.setCellValueFactory(new PropertyValueFactory<>("date"));
         add_recimporto.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -118,8 +123,18 @@ public class AddController {
 
     ;
 
+    /**
+     * Inserisce una nuova operazione leggendo i dati dai campi della form.
+     * Esegue i seguenti controlli:
+     * - Tutti i campi obbligatori devono essere compilati.
+     * - L'importo deve essere un numero valido.
+     * - Se è un'uscita, l'importo viene reso negativo.
+     * - Se si tratta di rata o ricorrenza, genera più inserimenti con date calcolate.
+     *
+     * In caso di errore, mostra un alert con il messaggio opportuno.
+     * In caso di successo, inserisce i dati in XML, mostra conferma e ricarica la lista recenti.
+     */
     public void addInsert() {
-        // Logic to handle the insertion of a new record
 
         //controllare che tutti i campi siano popolati
         int numInsert = 1; // Numero di inserimenti, da incrementare se necessario
@@ -268,7 +283,9 @@ public class AddController {
         cleanAll();
         loadRecenti();
     }
-
+    /**
+     * Pulisce tutti i campi della form e ripristina lo stato iniziale.
+     */
     public void cleanAll() {
         // Logica per pulire tutti i campi
         add_imp.clear();
@@ -286,6 +303,10 @@ public class AddController {
         add_sottocat.getSelectionModel().clearSelection();
     }
 
+    /**
+     * Carica le operazioni recenti dal file XML e le mostra nella tabella {@code add_recenti}.
+     * Aggiorna anche l'ultimo ID registrato per le nuove operazioni.
+     */
     public void loadRecenti() {
         // Logic to handle recent entries
 
@@ -326,8 +347,9 @@ public class AddController {
 
     /**
      * Aggiunge un tag alla lista dei tags.
-     * Se la sottocategoria è selezionata, viene utilizzata come tag.
-     * Altrimenti, viene utilizzato il ToggleButton selezionato.
+     * - Se una sottocategoria è selezionata, viene utilizzata come tag.
+     * - Altrimenti, viene utilizzata la categoria (ToggleButton) selezionata.
+     *
      * Se il tag è già presente o se si superano i 3 tag, viene mostrato un messaggio di errore.
      */
     public void addTag() {
@@ -368,6 +390,9 @@ public class AddController {
         tags.add(tagToAdd);
     }
 
+    /**
+     * Elimina il tag selezionato dalla lista {@code add_tags}, se presente.
+     */
     public void delTag() {
         // Logic to delete a tag
         //elimina il tag selezionato dalla lista dei tags
@@ -377,6 +402,10 @@ public class AddController {
         }
     }
 
+    /**
+     * Gestisce la visibilità dei campi {@code add_freq} e {@code add_occ}.
+     * Questi campi sono visibili solo se è selezionato almeno uno tra "ripetizione" e "rata".
+     */
     public void setVisible() {
         // Logica per rendere visibili i campi add_freq e add_occ solo se add_rep o add_rata sono selezionati
         boolean isRepSelected = add_rep.isSelected();
@@ -385,7 +414,13 @@ public class AddController {
         add_occ.setVisible(isRepSelected || isRataSelected);
     }
 
-
+    /**
+     * Carica le sottocategorie dal file {@code tags.xml}.
+     * - Se {@code fam} è null, carica tutte le sottocategorie.
+     * - Altrimenti, carica solo quelle appartenenti alla famiglia/categoria indicata.
+     *
+     * @param fam Nome della categoria principale, oppure null per tutte.
+     */
     public void loadSottocat(String fam) {
         List<String> sottocatList = new ArrayList<>();
         try (FileInputStream in = new FileInputStream("app/data/tags.xml")) {
@@ -420,7 +455,9 @@ public class AddController {
         add_sottocat.getItems().setAll(sottocatList);
     }
 
-
+    /**
+     * Carica gli autori dal file {@code users.xml} e li inserisce nella comboBox {@code add_autore}.
+     */
     public void loadAutore() {
         List<Author> autori = new ArrayList<>();
         try (FileInputStream in = new FileInputStream("app/data/users.xml")) {

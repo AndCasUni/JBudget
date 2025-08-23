@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.AddController">
+<AnchorPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@/css/styles.css" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.AddController">
     <AnchorPane fx:id="add_in" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
         <children>
             <Label layoutX="686.0" layoutY="65.0" prefHeight="18.0" prefWidth="202.0" text="Ultimi aggiunti" />

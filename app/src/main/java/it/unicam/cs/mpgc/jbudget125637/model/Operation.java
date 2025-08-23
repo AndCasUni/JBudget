@@ -13,6 +13,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public record Operation(String id,
@@ -28,6 +29,19 @@ public record Operation(String id,
         }
 
     }
+
+    public boolean isPlanned() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        try {
+            LocalDate opDate = LocalDate.parse(this.date, formatter);
+            LocalDate today = LocalDate.now();
+            return opDate.isAfter(today); // true se la data è futura
+        } catch (DateTimeParseException e) {
+            System.err.println("Formato data non valido: " + this.date);
+            return false; // considera non programmata se la data non è valida
+        }
+    }
+
     public String getId() {
         return id;
     }

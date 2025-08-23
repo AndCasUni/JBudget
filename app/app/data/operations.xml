@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <operations>
         
-    <operation>
+    <operation id="1">
                 
         <author>Mario</author>
                 
@@ -21,7 +21,7 @@
             
     </operation>
         
-    <operation>
+    <operation id="2">
                 
         <author>Anna</author>
                 
@@ -41,7 +41,7 @@
             
     </operation>
         
-    <operation>
+    <operation id="3">
                 
         <author>Luca</author>
                 
@@ -61,7 +61,7 @@
             
     </operation>
         
-    <operation>
+    <operation id="4">
                 
         <author>Mario</author>
                 
@@ -81,9 +81,9 @@
             
     </operation>
         
-    <operation>
+    <operation id="5">
                 
-        <author>Paolo</author>
+        <author>Luca</author>
                 
         <description>Vendita oggetto usato</description>
                 
@@ -93,15 +93,13 @@
                 
         <tags>
                         
-            <tag id="21">Hobby</tag>
-                        
             <tag id="22">Libri/Musica/Film</tag>
                     
         </tags>
             
     </operation>
     
-    <operation>
+    <operation id="6">
         <author>Anna</author>
         <description>fge</description>
         <date>15/08/2025</date>

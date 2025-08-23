@@ -8,8 +8,9 @@ public record Tags(int id, String description) {
         }
     }
 
-    @Override
-    public String toString() {
+
+
+    public String getDescription() {
         return description;
     }
 

@@ -1,30 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-                    <?import javafx.scene.layout.AnchorPane?>
 
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.chart.StackedBarChart?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.Slider?>
-<?import javafx.scene.chart.CategoryAxis?>
-<AnchorPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.ConfrontoController">
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane stylesheets="@/css/styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jbudget125637.controller.ConfrontoController">
 
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
         <children>
-            <CheckBox fx:id="conf_entrate" layoutX="14.0" layoutY="38.0" mnemonicParsing="false" text="Entrate" />
-            <CheckBox fx:id="conf_uscite" layoutX="110.0" layoutY="38.0" mnemonicParsing="false" text="Uscite" />
-            <Label layoutX="300.0" layoutY="38.0" text="Da data" />
-            <Label layoutX="546.0" layoutY="38.0" text="A data" />
-            <DatePicker fx:id="conf_dadata" layoutX="339.0" layoutY="35.0" />
-            <DatePicker fx:id="conf_adata" layoutX="605.0" layoutY="35.0" />
-            <Label layoutX="60.0" layoutY="149.0" text="tag per percentuale" />
+            <Label layoutX="65.0" layoutY="38.0" text="Da data" />
+            <DatePicker fx:id="conf_dadata" layoutX="121.0" layoutY="34.0" />
             <Label layoutX="574.0" layoutY="167.0" text="Tag per persona" />
-            <Label layoutX="51.0" layoutY="366.0" text="totali tag" />
             <Label layoutX="574.0" layoutY="357.0" text="Resoconto" />
-            <PieChart fx:id="conf_torta" layoutX="51.0" layoutY="167.0" prefHeight="189.0" prefWidth="278.0" />
             <StackedBarChart fx:id="conf_stack" layoutX="545.0" layoutY="192.0" prefHeight="149.0" prefWidth="239.0">
                 <xAxis>
                     <CategoryAxis side="BOTTOM" />
@@ -33,8 +25,10 @@
                     <NumberAxis side="LEFT" />
                 </yAxis>
             </StackedBarChart>
-            <ListView fx:id="conf_totali" layoutX="47.0" layoutY="390.0" prefHeight="200.0" prefWidth="200.0" />
-            <Slider layoutX="233.0" layoutY="420.0" orientation="VERTICAL" />
-            <ListView fx:id="Conf_resoconto" layoutX="574.0" layoutY="390.0" prefHeight="200.0" prefWidth="200.0" />
+            <ListView fx:id="conf_resoconto" layoutX="574.0" layoutY="390.0" prefHeight="200.0" prefWidth="200.0" />
         </children></AnchorPane>
+      <PieChart fx:id="conf_tortain" layoutX="14.0" layoutY="113.0" prefHeight="222.0" prefWidth="442.0" />
+   <PieChart fx:id="conf_tortaout" layoutX="14.0" layoutY="379.0" prefHeight="222.0" prefWidth="442.0" />
+      <Label layoutX="361.0" layoutY="41.0" text="A data" />
+      <DatePicker fx:id="conf_adata" layoutX="432.0" layoutY="37.0" />
             </AnchorPane>
