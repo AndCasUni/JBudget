@@ -5,9 +5,10 @@ import it.unicam.cs.mpgc.jbudget125637.model.Operation;
 
 import java.util.List;
 
-public interface IOOperationRepository {
-    List<CompleteOperationRow> loadAll();
-    void save(Operation op);
-    void update(Operation op);
-    void delete(Operation op);
+public interface IOOperationRepository<T> {
+    List<T> read();
+    void save(List<T> items);
+    void delete(String id);
+    void delete(boolean all);
+
 }

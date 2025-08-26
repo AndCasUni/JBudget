@@ -1,7 +1,8 @@
 package it.unicam.cs.mpgc.jbudget125637.controller;
 
-import it.unicam.cs.mpgc.jbudget125637.model.Author;
-import it.unicam.cs.mpgc.jbudget125637.model.CompleteOperationRow;
+import it.unicam.cs.mpgc.jbudget125637.model.*;
+import it.unicam.cs.mpgc.jbudget125637.persistency.OperationXmlRepository;
+import it.unicam.cs.mpgc.jbudget125637.persistency.UserXmlRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,13 +10,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
-import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -84,9 +83,12 @@ public class RevisionController {
         rev_coltag2.setCellValueFactory(new PropertyValueFactory<>("tag2"));
         rev_coltag3.setCellValueFactory(new PropertyValueFactory<>("tag3"));
         loadAutore();
-        loadData();
+        //loadData();
         tagHierarchy = loadTagHierarchy("app/data/tags.xml");
 
+        //quando si entra nella schermata la lista viene svuotata
+
+        rev_lista.setItems(null);
     }
 
     /**
@@ -101,7 +103,7 @@ public class RevisionController {
      */
     public void cerca()
     {
-
+        loadData();
         String autore = rev_autore.getValue();
         boolean entrate = rev_entrate.isSelected();
         boolean uscite = rev_uscite.isSelected();
@@ -253,51 +255,22 @@ public class RevisionController {
      */
     public void loadData()
     {
-        try {
-            File xmlFile = new File("app/data/operations.xml");
-            System.out.println(xmlFile.getPath() + " " + xmlFile.exists());
 
-            if (!xmlFile.exists()) return;
+        OperationXmlRepository operationXmlRepository = new OperationXmlRepository();
+        List<Operation> operations = operationXmlRepository.read();
+        data.clear();
+        for (Operation op : operations) {
 
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-            doc.getDocumentElement().normalize();
-
-            NodeList nList = doc.getElementsByTagName("operation");
-
-
-            for (int i = 0; i < nList.getLength(); i++) {
-                Node node = nList.item(i);
-
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element elem = (Element) node;
-
-                    String author = elem.getElementsByTagName("author").item(0).getTextContent();
-                    String description = elem.getElementsByTagName("description").item(0).getTextContent();
-                    String date = elem.getElementsByTagName("date").item(0).getTextContent();
-                    Double amount = Double.parseDouble(elem.getElementsByTagName("amount").item(0).getTextContent());
-                    List<String> tagsList = new ArrayList<>();
-                    NodeList tags = elem.getElementsByTagName("tags");
-                    for (int k = 0; k < tags.getLength(); k++) {
-                        Element tag = (Element) tags.item(k);
-                        NodeList children = tag.getElementsByTagName("tag");
-                        for (int j = 0; j < children.getLength(); j++) {
-                            Element sub = (Element) children.item(j);
-                            tagsList.add(sub.getTextContent());
-                        }
-                    }
-
-                    String tag1 = tagsList.size() > 0 ? tagsList.get(0) : "";
-                    String tag2 = tagsList.size() > 1 ? tagsList.get(1) : "";
-                    String tag3 = tagsList.size() > 2 ? tagsList.get(2) : "";
-
-                    data.add(new CompleteOperationRow(author,description, date, amount, tag1, tag2, tag3));
+            List<Tags> tagsList = new ArrayList<>(3);
+            for( int i = 0; i < 3; i++ ) {
+                if( op.getTags().size() > i ) {
+                    tagsList.add(op.getTags().get(i));
+                } else {
+                    tagsList.add(new Tags("","")); // tag vuoto se non presente
                 }
-            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            }
+            data.add(new CompleteOperationRow(op.getAutore(), op.getDesc(), op.getDate(), op.getAmount(), tagsList.get(0).description(), tagsList.get(1).description(), tagsList.get(2).description()));
         }
     }
     /**
@@ -306,19 +279,9 @@ public class RevisionController {
      */
     public void loadAutore() {
         List<Author> autori = new ArrayList<>();
-        try (FileInputStream in = new FileInputStream("app/data/users.xml")) {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(in);
-            NodeList list = doc.getElementsByTagName("user");
-            for (int i = 0; i < list.getLength(); i++) {
-                Element el = (Element) list.item(i);
-                String name = el.getAttribute("name");
-                autori.add(new Author(i, name));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        UserXmlRepository userXmlRepository = new UserXmlRepository();
+        autori = userXmlRepository.read();
+
         for (Author autore : autori) {
             rev_autore.getItems().add(autore.name());
         }

@@ -1,14 +1,14 @@
 package it.unicam.cs.mpgc.jbudget125637.model;
 
-public record Tags(int id, String description) {
+public record Tags(String id, String description, boolean isParent) {
 
     public Tags {
-        if (id < 0 || description == null || description.isEmpty()) {
-            throw new IllegalArgumentException("ID must be non-negative and description must be non-empty");
-        }
     }
 
-
+    public Tags( String id, String description)
+    {
+        this(id, description, false);
+    }
 
     public String getDescription() {
         return description;
@@ -24,6 +24,6 @@ public record Tags(int id, String description) {
 
     @Override
     public int hashCode() {
-        return 31 * id + description.hashCode();
+        return description.hashCode();
     }
 }

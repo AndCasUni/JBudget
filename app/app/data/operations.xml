@@ -1,111 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <operations>
-        
-    <operation id="1">
-                
+    <operation>
+        <id>1</id>
         <author>Mario</author>
-                
-        <description>Spesa settimanale supermercato</description>
-                
-        <date>10/08/2025</date>
-                
-        <amount>-85.50</amount>
-                
-        <tags>
-                        
-            <tag id="6">Spesa alimentare</tag>
-                        
-            <tag id="7">Ristoranti/Bar</tag>
-                    
-        </tags>
-            
-    </operation>
-        
-    <operation id="2">
-                
-        <author>Anna</author>
-                
-        <description>Stipendio mensile</description>
-                
+        <description>stipendio mensile</description>
         <date>01/08/2025</date>
-                
-        <amount>1850.00</amount>
-                
+        <amount>1000.0</amount>
         <tags>
-                        
             <tag id="9">Lavoro</tag>
-                        
-            <tag id="10">Trasporti lavoro</tag>
-                    
+            <tag id="11">Stipendio</tag>
         </tags>
-            
     </operation>
-        
-    <operation id="3">
-                
-        <author>Luca</author>
-                
-        <description>Abbonamento palestra trimestrale</description>
-                
-        <date>20/07/2025</date>
-                
-        <amount>-120.00</amount>
-                
-        <tags>
-                        
-            <tag id="13">Sport</tag>
-                        
-            <tag id="14">Abbonamenti palestra</tag>
-                    
-        </tags>
-            
-    </operation>
-        
-    <operation id="4">
-                
+    <operation>
+        <id>1</id>
         <author>Mario</author>
-                
-        <description>Visita medica specialistica</description>
-                
-        <date>05/08/2025</date>
-                
-        <amount>-90.00</amount>
-                
+        <description>stipendio mensile</description>
+        <date>01/09/2025</date>
+        <amount>1000.0</amount>
         <tags>
-                        
-            <tag id="17">Salute</tag>
-                        
-            <tag id="18">Visite mediche</tag>
-                    
+            <tag id="9">Lavoro</tag>
+            <tag id="11">Stipendio</tag>
         </tags>
-            
     </operation>
-        
-    <operation id="5">
-                
-        <author>Luca</author>
-                
-        <description>Vendita oggetto usato</description>
-                
-        <date>08/08/2025</date>
-                
-        <amount>150.00</amount>
-                
+    <operation>
+        <id>1</id>
+        <author>Mario</author>
+        <description>stipendio mensile</description>
+        <date>02/10/2025</date>
+        <amount>1000.0</amount>
         <tags>
-                        
-            <tag id="22">Libri/Musica/Film</tag>
-                    
+            <tag id="9">Lavoro</tag>
+            <tag id="11">Stipendio</tag>
         </tags>
-            
     </operation>
-    
-    <operation id="6">
+    <operation>
+        <id>2</id>
         <author>Anna</author>
-        <description>fge</description>
-        <date>15/08/2025</date>
-        <amount>3.0</amount>
+        <description>stipendio</description>
+        <date>01/08/2025</date>
+        <amount>5000.0</amount>
         <tags>
-            <tag id="1">Hobby</tag>
+            <tag id="9">Lavoro</tag>
+            <tag id="11">Stipendio</tag>
+        </tags>
+    </operation>
+    <operation>
+        <id>3</id>
+        <author>Anna</author>
+        <description>palestrA</description>
+        <date>03/09/2025</date>
+        <amount>-500.0</amount>
+        <tags>
+            <tag id="14">Iscrizioni</tag>
+        </tags>
+    </operation>
+    <operation>
+        <id>4</id>
+        <author>Mario</author>
+        <description>chtrdet</description>
+        <date>22/08/2025</date>
+        <amount>-200.0</amount>
+        <tags>
+            <tag id="6">Spesa</tag>
         </tags>
     </operation>
 </operations>

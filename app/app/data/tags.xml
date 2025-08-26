@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tags>
-    <tag id="1" name="Casa">
-        <chtag id="2" name="Affitto/Mutuo"/>
-        <chtag id="3" name="Utenze"/>
-        <chtag id="4" name="Manutenzione/Elettrodomestici"/>
+    <tag id="1" name="Casa" isParent="true">
+        <chtag id="2" name="Affitto/Mutuo" isParent="false"/>
+        <chtag id="3" name="Utenze" isParent="false"/>
+        <chtag id="4" name="Manutenzione/Elettrodomestici" isParent="false"/>
     </tag>
-    <tag id="5" name="Cibo">
-        <chtag id="6" name="Spesa"/>
-        <chtag id="7" name="Ristoranti/Bar"/>
-        <chtag id="8" name="Utensili"/>
+    <tag id="5" name="Cibo" isParent="true">
+        <chtag id="6" name="Spesa" isParent="false"/>
+        <chtag id="7" name="Ristoranti/Bar" isParent="false"/>
+        <chtag id="8" name="Utensili" isParent="false"/>
     </tag>
-    <tag id="9" name="Lavoro">
-        <chtag id="10" name="Trasporto"/>
-        <chtag id="11" name="Stipendio"/>
-        <chtag id="12" name="Altro"/>
+    <tag id="9" name="Lavoro" isParent="true">
+        <chtag id="10" name="Trasporto" isParent="false"/>
+        <chtag id="11" name="Stipendio" isParent="false"/>
+        <chtag id="12" name="Altro" isParent="false"/>
     </tag>
-    <tag id="13" name="Sport">
-        <chtag id="14" name="Iscrizioni"/>
-        <chtag id="15" name="Attrezzatura"/>
-        <chtag id="16" name="Eventi"/>
+    <tag id="13" name="Sport" isParent="true">
+        <chtag id="14" name="Iscrizioni" isParent="false"/>
+        <chtag id="15" name="Attrezzatura" isParent="false"/>
+        <chtag id="16" name="Eventi" isParent="false"/>
     </tag>
-    <tag id="17" name="Salute">
-        <chtag id="18" name="Visite mediche"/>
-        <chtag id="19" name="Farmaci"/>
-        <chtag id="20" name="Assicurazioni sanitarie"/>
+    <tag id="17" name="Salute" isParent="true">
+        <chtag id="18" name="Visite mediche" isParent="false"/>
+        <chtag id="19" name="Farmaci" isParent="false"/>
+        <chtag id="20" name="Assicurazioni sanitarie" isParent="false"/>
     </tag>
-    <tag id="21" name="Hobby">
-        <chtag id="22" name="Libri/Musica/Film"/>
-        <chtag id="23" name="Viaggi e gite"/>
-        <chtag id="24" name="Attività creative"/>
+    <tag id="21" name="Hobby" isParent="true">
+        <chtag id="22" name="Libri/Musica/Film" isParent="false"/>
+        <chtag id="23" name="Viaggi e gite" isParent="false"/>
+        <chtag id="24" name="Attività creative" isParent="false"/>
     </tag>
 </tags>

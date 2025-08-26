@@ -1,6 +1,9 @@
 package it.unicam.cs.mpgc.jbudget125637.controller;
 
 import it.unicam.cs.mpgc.jbudget125637.model.*;
+import it.unicam.cs.mpgc.jbudget125637.persistency.OperationXmlRepository;
+import it.unicam.cs.mpgc.jbudget125637.persistency.TagXmlRepository;
+import it.unicam.cs.mpgc.jbudget125637.persistency.UserXmlRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,17 +11,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddController {
+
 
     @FXML
     private TextField add_imp;
@@ -48,32 +50,21 @@ public class AddController {
     private TableColumn<OperationRow, String> add_recdata;
     @FXML
     private TableColumn<OperationRow, Double> add_recimporto;
-    @FXML
-    private ToggleButton add_cibo;
-    @FXML
-    private ToggleButton add_casa;
-    @FXML
-    private ToggleButton add_lavoro;
-    @FXML
-    private ToggleButton add_sport;
-    @FXML
-    private ToggleButton add_hobby;
-    @FXML
-    private ToggleButton add_salute;
+
     @FXML
     private ComboBox add_sottocat;
     @FXML
     private ListView add_tags;
-    @FXML
-    private Button add_addtag;
-    @FXML
-    private Button add_deltag;
-    @FXML
-    private Button add_insert;
+
     @FXML
     private ToggleGroup main_tag;
 
-    String lastId;
+    String maxId;
+    OperationXmlRepository operationXmlRepository = new OperationXmlRepository();
+    TagXmlRepository tagXmlRepository = new TagXmlRepository();
+
+    List<Operation> operations = new ArrayList<>();
+    List<Tags> alltags = new ArrayList<>();
 
     /**
      * Inizializza la vista e i componenti della form.
@@ -82,6 +73,10 @@ public class AddController {
      * - Imposta i listener per la selezione di categorie e checkBox (ricorrenza/rata).
      */
     public void initialize() {
+        operations = operationXmlRepository.read();
+        alltags = tagXmlRepository.readChild();
+        refreshList();
+
         add_recautore.setCellValueFactory(new PropertyValueFactory<>("author"));
         add_recdata.setCellValueFactory(new PropertyValueFactory<>("date"));
         add_recimporto.setCellValueFactory(new PropertyValueFactory<>("amount"));
@@ -104,8 +99,7 @@ public class AddController {
         // leggere autori dal file
         loadAutore();
 
-        //caricare recenti nella lista add_recenti
-        loadRecenti();
+
 
         add_rep.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if (isNowSelected) {
@@ -119,6 +113,7 @@ public class AddController {
                 add_rep.setSelected(false);
             }
         });
+
     }
 
     ;
@@ -148,7 +143,23 @@ public class AddController {
         boolean rata = add_rata.isSelected();
         String frequenza = (String) add_freq.getValue();
         String occorrenze = add_occ.getText();
-        List<String> tags = add_tags.getItems();
+        List<String> selec = add_tags.getItems();
+        List<Tags> tags = new ArrayList<>();
+        Tags found = null;
+        for (String s : selec)
+        {
+            for (Tags t : alltags)
+            {
+                if(t.getDescription().equalsIgnoreCase(s))
+                {
+                    found = t;
+                    break;
+                }
+            }
+            if(found == null) continue;
+
+            tags.add(found);
+        }
         List<String> dateRicorrenze = new ArrayList<>();
         dateRicorrenze.add(data);
         //autore non null
@@ -156,7 +167,7 @@ public class AddController {
                 data == null || data.isBlank() || autore == null || autore.isBlank() ||
                 (!entrata && !uscita) || (ripetizione && (frequenza == null || frequenza.isBlank())) ||
                 (ripetizione && rata && (occorrenze == null || occorrenze.isBlank())) ||
-                tags.isEmpty()) {
+                selec.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Errore");
             alert.setHeaderText(null);
@@ -237,7 +248,7 @@ public class AddController {
 
         for (int i = 0; i < numInsert; i++) {
             Operation newElement = null;
-            String newId = lastId + 1; // Genera un nuovo ID univoco per l'operazione
+            String newId = String.valueOf(Integer.parseInt(maxId) + 1); // Genera un nuovo ID univoco per l'operazione
             // Creazione dell'elemento da inserire
             if (rata) {
                 newElement = new Operation(
@@ -259,9 +270,9 @@ public class AddController {
                 );
             }
 
-            // Aggiunta dell'elemento al file XML
+            // Aggiunta dell'elemento all'arraydelle operazioni
             try {
-                newElement.addElementToXML();
+                operations.add(newElement);
             } catch (Exception e) {
                 e.printStackTrace();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -281,7 +292,8 @@ public class AddController {
         alert.setContentText("Dati inseriti con successo.");
         alert.showAndWait();
         cleanAll();
-        loadRecenti();
+        operationXmlRepository.save(operations);
+        refreshList();
     }
     /**
      * Pulisce tutti i campi della form e ripristina lo stato iniziale.
@@ -303,45 +315,18 @@ public class AddController {
         add_sottocat.getSelectionModel().clearSelection();
     }
 
-    /**
-     * Carica le operazioni recenti dal file XML e le mostra nella tabella {@code add_recenti}.
-     * Aggiorna anche l'ultimo ID registrato per le nuove operazioni.
-     */
-    public void loadRecenti() {
-        // Logic to handle recent entries
 
-        try {
-            File xmlFile = new File("app/data/operations.xml");
-            if (!xmlFile.exists()) return;
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-            doc.getDocumentElement().normalize();
-
-            NodeList nList = doc.getElementsByTagName("operation");
-
-            ObservableList<OperationRow> data = FXCollections.observableArrayList();
-
-            for (int i = 0; i < nList.getLength(); i++) {
-                Node node = nList.item(i);
-
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element elem = (Element) node;
-
-                    String author = elem.getElementsByTagName("author").item(0).getTextContent();
-                    String date = elem.getElementsByTagName("date").item(0).getTextContent();
-                    Double amount = Double.parseDouble(elem.getElementsByTagName("amount").item(0).getTextContent());
-                    lastId = elem.getAttribute("id"); // Aggiorna l'ultimo ID
-                    data.add(new OperationRow(author, date, amount));
-                }
-            }
-
-            add_recenti.setItems(data);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void refreshList()
+    {
+        ObservableList<OperationRow> data = FXCollections.observableArrayList();
+        for (Operation op : operations) {
+            data.add(new OperationRow(op.autore(), op.date(), op.getAmount()));
+            maxId = op.getId();
         }
+        if(maxId == null) maxId = "0";
+
+
+        add_recenti.setItems(data);
     }
 
 
@@ -386,7 +371,14 @@ public class AddController {
             alert.showAndWait();
             return;
         }
-
+        if(tagToAdd == null || tagToAdd.isBlank())
+        {
+            alert.setTitle("Errore");
+            alert.setHeaderText(null);
+            alert.setContentText("Seleziona una categoria o sottocategoria.");
+            alert.showAndWait();
+            return;
+        }
         tags.add(tagToAdd);
     }
 
@@ -460,19 +452,9 @@ public class AddController {
      */
     public void loadAutore() {
         List<Author> autori = new ArrayList<>();
-        try (FileInputStream in = new FileInputStream("app/data/users.xml")) {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(in);
-            NodeList list = doc.getElementsByTagName("user");
-            for (int i = 0; i < list.getLength(); i++) {
-                Element el = (Element) list.item(i);
-                String name = el.getAttribute("name");
-                autori.add(new Author(i, name));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        UserXmlRepository userXmlRepository = new UserXmlRepository();
+        autori = userXmlRepository.read();
+
         for (Author autore : autori) {
             add_autore.getItems().add(autore.name());
         }

@@ -2,10 +2,9 @@ package it.unicam.cs.mpgc.jbudget125637.controller;
 
 import it.unicam.cs.mpgc.jbudget125637.model.Currency;
 import it.unicam.cs.mpgc.jbudget125637.model.Operation;
-import it.unicam.cs.mpgc.jbudget125637.model.Tags;
+import it.unicam.cs.mpgc.jbudget125637.persistency.OperationXmlRepository;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -17,12 +16,8 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.FileOutputStream;
@@ -45,15 +40,11 @@ public class ImpoController {
     private boolean darkMode; // false = chiaro, true = scuro
     private String valuta;
     List<Currency> codes;
+    OperationXmlRepository repo = new OperationXmlRepository();
 
+/**
 
-    /**
-     * Inizializza la schermata delle impostazioni.
-     * - Carica le impostazioni salvate.
-     * - Carica i codici valuta da {@code currency.xml}.
-     * - Popola la ComboBox con i codici valuta disponibili.
-     * - Imposta gli handler per i pulsanti (reset, cancella, modifica tema, cambio valuta).
-     */
+ */
     public void initialize() {
         loadSettings();
         codes = loadCurrencyCodes();
@@ -71,70 +62,66 @@ public class ImpoController {
             e.printStackTrace();
         }
     }
-
     /**
-     * Converte tutte le transazioni in una valuta selezionata.
-     * - Se {@code reset = true}, riporta tutte le transazioni in Euro.
-     * - Altrimenti converte da Euro alla valuta selezionata nella ComboBox.
-     * - Salva il risultato in {@code operations.xml}.
-     *
-     * @param reset se {@code true}, riporta sempre le transazioni in Euro.
+
      */
     private void changeValue(boolean reset) {
-        String selectedCurrency = impo_valuta.getValue().toString();
+        String selectedCurrency = impo_valuta.getValue() != null
+                ? impo_valuta.getValue().toString()
+                : "EUR";
         List<Operation> scrittura;
 
         if (reset) {
-             scrittura = transactionsToEuro();
-            saveOperationsToXml(scrittura, "app/data/operations.xml");
             impo_valuta.setValue("EUR");
-        }
-        else {
-            if( impo_valuta.getValue().equals(valuta)) {
-                return;
-            }
             scrittura = transactionsToEuro();
-            if (impo_valuta.getValue().equals("EUR")) {
-                saveOperationsToXml(scrittura, "app/data/operations.xml");
-                return;
-            } else {
-                double fromEuro = 0;
-                for ( Currency c : codes) {
-                    if (c.code().equals(impo_valuta.getValue().toString())) {
-                        fromEuro = c.fromEuro();
-                        break;
-                    }
-                }
-                List<Operation> converted = new ArrayList<>();
-                for (Operation op : scrittura) {
-                    double euroAmount = Math.round((op.getAmount() * fromEuro) * 100.0) / 100.0;
-                    converted.add(new Operation(op.getId(), op.getAutore(), op.getDesc(), euroAmount, op.getDate(), op.getTags()));
-                }
-                //leggi i valori delle transazioni da operations.xml
-                //leggi il valore dell'attributo FROMEUR di currency.xml per la valuta salvata nella variabile selectedCurrency
-                //converti tutti i valori da euro in selectedCurrency
-                //salva tutte le transazioni in operations.xml
-                saveOperationsToXml(converted, "app/data/operations.xml");
-
-            }
+            repo.save(scrittura);
+            valuta = "EUR";
+            saveSettings();
+            return;
         }
-        saveSettings();
 
+        if (selectedCurrency.equals(valuta)) {
+            saveSettings();
+            return;
+        }
+
+        scrittura = transactionsToEuro();
+
+        if ("EUR".equals(selectedCurrency)) {
+            repo.save(scrittura);
+            valuta = "EUR";
+
+        } else {
+
+            double fromEuro = 0;
+            for (Currency c : codes) {
+                if (c.code().equals(selectedCurrency)) {
+                    fromEuro = c.fromEuro();
+                    break;
+                }
+            }
+            List<Operation> converted = new ArrayList<>();
+            for (Operation op : scrittura) {
+                double amount = Math.round((op.getAmount() * fromEuro) * 100.0) / 100.0;
+                converted.add(new Operation(op.getId(), op.getAutore(), op.getDesc(), amount, op.getDate(), op.getTags()));
+            }
+            repo.save(converted);
+            valuta = selectedCurrency;
+        }
+
+
+        impo_valuta.setValue(valuta);
+        saveSettings();
     }
 
     /**
-     * Converte tutte le transazioni correnti in Euro.
-     * - Legge i dati da {@code operations.xml}.
-     * - Usa il tasso {@code to_EUR} della valuta attuale.
-     *
-     * @return lista di transazioni convertite in Euro.
+
      */
     public List<Operation> transactionsToEuro() {
-        //fai tornare tutte le transazioni ad euro
-        // leggi tutte le transazioni da operations.xml
-        List<Operation> operations = loadOperations();
+        List<Operation> operations = repo.read();
+
         double toEuro = 0;
-        for ( Currency c : codes) {
+        for (Currency c : codes) {
             if (c.code().equals(valuta)) {
                 toEuro = c.toEuro();
                 break;
@@ -143,96 +130,15 @@ public class ImpoController {
         List<Operation> converted = new ArrayList<>();
         for (Operation op : operations) {
             double euroAmount = Math.round((op.getAmount() * toEuro) * 100.0) / 100.0;
-                converted.add(new Operation(op.getId(),op.getAutore(), op.getDesc(), euroAmount, op.getDate(), op.getTags()));
+            converted.add(new Operation(op.getId(), op.getAutore(), op.getDesc(), euroAmount, op.getDate(), op.getTags()));
 
         }
-        // leggi il valore dell'attributo TOEUR di currency.xml per la valuta salvata nella variabile valuta
-        // converti tutti i valori da selectedCurrency in euro
-        // salva le transazioni convertite in operations.
+
         return converted;
     }
 
     /**
-     * Salva una lista di operazioni in un file XML.
-     *
-     * @param operations lista di operazioni da salvare.
-     * @param filePath percorso del file XML di destinazione.
-     */
-    public void saveOperationsToXml(List<Operation> operations, String filePath) {
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.newDocument();
 
-            Element root = doc.createElement("operations");
-            doc.appendChild(root);
-
-            for (Operation op : operations) {
-                Element opElem = doc.createElement("operation");
-                opElem.setAttribute("id", op.getId());
-                opElem.setAttribute("desc", op.getDesc());
-                opElem.setAttribute("amount", String.valueOf(op.getAmount()));
-                opElem.setAttribute("date", op.getDate());
-                root.appendChild(opElem);
-            }
-
-            // Scrittura su file
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            FileOutputStream fos = new FileOutputStream(filePath);
-            StreamResult result = new StreamResult(fos);
-            transformer.transform(source, result);
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Carica le operazioni dal file {@code operations.xml}.
-     *
-     * @return lista di operazioni presenti nel file XML.
-     */
-    public List<Operation> loadOperations() {
-        List<Operation> operations = new ArrayList<>();
-        try (FileInputStream in = new FileInputStream("app/data/operations.xml")) {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(in);
-            NodeList list = doc.getElementsByTagName("operation");
-            for (int i = 0; i < list.getLength(); i++) {
-                Element el = (Element) list.item(i);
-                String id = el.getElementsByTagName("id").item(0).getTextContent();
-                String author = el.getElementsByTagName("author").item(0).getTextContent();
-                String description = el.getElementsByTagName("description").item(0).getTextContent();
-                String date = el.getElementsByTagName("date").item(0).getTextContent();
-                String amountStr = el.getElementsByTagName("amount").item(0).getTextContent();
-                double amount = amountStr.isEmpty() ? 0.0 : Double.parseDouble(amountStr);
-                List<String> tags = new ArrayList<>();
-                NodeList readTags = el.getElementsByTagName("tags");
-                for (int k = 0; k < readTags.getLength(); k++) {
-                    Element tag = (Element) readTags.item(k);
-                        NodeList children = tag.getElementsByTagName("tag");
-                        for (int j = 0; j < children.getLength(); j++) {
-                            Element sub = (Element) children.item(j);
-                            tags.add(sub.getTextContent());
-                        }
-                        break;
-                }
-                operations.add(new Operation(id, author, description, amount, date,tags));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return operations;
-    }
-
-    /**
-     * Cancella i dati delle operazioni.
-     * - Mostra una finestra di conferma.
-     * - Se confermato, sposta il file {@code operations.xml} in {@code operations_backup.xml}.
-     * - Crea un nuovo file {@code operations.xml} vuoto e valido.
      */
     private void cancelData() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -241,49 +147,12 @@ public class ImpoController {
         alert.setContentText("Sei sicuro di voler cancellare?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                File file = new File("app/data/operations.xml");
-                System.out.println("Percorso atteso: " + file.getAbsolutePath());
-                File backup = new File("app/data/operations_backup.xml");
-                System.out.println("File originale: " + file.getAbsolutePath() + " - exists: " + file.exists());
-                System.out.println("File backup: " + backup.getAbsolutePath() + " - exists: " + backup.exists());
-
-                if (file.exists()) {
-                    // Se esiste già un backup, lo elimina
-                    System.out.println("Backup già esistente, lo elimino.");
-
-                    if (backup.exists()) backup.delete();
-                    // Rinomina il file originale in backup
-                    if (!file.renameTo(backup)) {
-                        System.out.println("Impossibile rinominare il file per il backup.");
-
-                        throw new Exception("Impossibile rinominare il file per il backup.");
-                    }
-                    else {
-                        System.out.println("File rinominato correttamente.");
-                    }
-                }else {
-                    System.out.println("Il file originale non esiste.");
-                }
-                // Crea un nuovo file vuoto valido
-                String emptyXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><operations></operations>";
-                try (FileOutputStream out = new FileOutputStream(file, false)) {
-                    out.write(emptyXml.getBytes("UTF-8"));
-                    System.out.println("Nuovo file vuoto creato.");
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            repo.delete(true);
         }
     }
 
     /**
-     * Modifica il tema dell’applicazione (chiaro/scuro).
-     * - Se {@code reset = true}, imposta sempre il tema chiaro.
-     * - Altrimenti alterna tra tema chiaro e scuro.
-     *
-     * @param reset se {@code true}, forza il tema chiaro.
+
      */
     private void modifySettings(boolean reset) {
         Scene scene = impo_mod.getScene();
@@ -302,11 +171,8 @@ public class ImpoController {
         saveSettings();
     }
 
-
     /**
-     * Carica i codici delle valute dal file {@code currency.xml}.
-     *
-     * @return lista di oggetti {@link Currency} con codice, toEuro e fromEuro.
+
      */
     private List<Currency> loadCurrencyCodes() {
         List<Currency> currencies = new ArrayList<>();
@@ -329,10 +195,7 @@ public class ImpoController {
     }
 
     /**
-     * Restituisce il file delle impostazioni utente ({@code settings.properties}).
-     * Se la cartella {@code app/config} non esiste, viene creata.
-     *
-     * @return file delle impostazioni.
+
      */
     private File getSettingsFile() {
         File configDir = new File("app/config");
@@ -341,9 +204,7 @@ public class ImpoController {
     }
 
     /**
-     * Salva le impostazioni utente correnti:
-     * - Valuta selezionata.
-     * - Tema attivo (chiaro/scuro).
+
      */
     private void saveSettings() {
         Properties props = new Properties();
@@ -356,14 +217,8 @@ public class ImpoController {
         }
     }
 
-
     /**
-     * Carica le impostazioni utente da {@code settings.properties}.
-     * Se il file non esiste, imposta valori di default:
-     * - Valuta = EUR
-     * - Tema = chiaro
-     *
-     * Al termine applica il tema corrente alla scena.
+
      */
     private void loadSettings() {
         Properties props = new Properties();
@@ -383,8 +238,7 @@ public class ImpoController {
     }
 
     /**
-     * Applica il tema corrente alla scena (chiaro o scuro).
-     * Se la scena non è disponibile, non fa nulla.
+
      */
     private void applyTheme() {
         Scene scene = impo_mod.getScene();
@@ -398,9 +252,7 @@ public class ImpoController {
     }
 
     /**
-     * Reimposta i campi delle impostazioni:
-     * - Riporta il tema a chiaro.
-     * - Riporta tutte le transazioni in Euro.
+
      */
     private void resetFields() {
         modifySettings(true);
