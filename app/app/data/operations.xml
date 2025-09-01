@@ -3,65 +3,71 @@
     <operation>
         <id>1</id>
         <author>Mario</author>
-        <description>stipendio mensile</description>
+        <description>stipendio</description>
         <date>01/08/2025</date>
-        <amount>1000.0</amount>
+        <amount>9.97</amount>
         <tags>
-            <tag id="9">Lavoro</tag>
-            <tag id="11">Stipendio</tag>
-        </tags>
-    </operation>
-    <operation>
-        <id>1</id>
-        <author>Mario</author>
-        <description>stipendio mensile</description>
-        <date>01/09/2025</date>
-        <amount>1000.0</amount>
-        <tags>
-            <tag id="9">Lavoro</tag>
-            <tag id="11">Stipendio</tag>
-        </tags>
-    </operation>
-    <operation>
-        <id>1</id>
-        <author>Mario</author>
-        <description>stipendio mensile</description>
-        <date>02/10/2025</date>
-        <amount>1000.0</amount>
-        <tags>
-            <tag id="9">Lavoro</tag>
             <tag id="11">Stipendio</tag>
         </tags>
     </operation>
     <operation>
         <id>2</id>
-        <author>Anna</author>
+        <author>Mario</author>
         <description>stipendio</description>
-        <date>01/08/2025</date>
-        <amount>5000.0</amount>
+        <date>01/09/2025</date>
+        <amount>9.97</amount>
         <tags>
-            <tag id="9">Lavoro</tag>
             <tag id="11">Stipendio</tag>
         </tags>
     </operation>
     <operation>
         <id>3</id>
-        <author>Anna</author>
-        <description>palestrA</description>
-        <date>03/09/2025</date>
-        <amount>-500.0</amount>
+        <author>Mario</author>
+        <description>stipendio</description>
+        <date>02/10/2025</date>
+        <amount>9.97</amount>
         <tags>
-            <tag id="14">Iscrizioni</tag>
+            <tag id="11">Stipendio</tag>
         </tags>
     </operation>
     <operation>
         <id>4</id>
-        <author>Mario</author>
-        <description>chtrdet</description>
-        <date>22/08/2025</date>
-        <amount>-200.0</amount>
+        <author>Anna</author>
+        <description>stipendio</description>
+        <date>01/08/2025</date>
+        <amount>19.96</amount>
         <tags>
-            <tag id="6">Spesa</tag>
+            <tag id="10">Trasporto</tag>
+        </tags>
+    </operation>
+    <operation>
+        <id>5</id>
+        <author>Anna</author>
+        <description>stipendio</description>
+        <date>01/09/2025</date>
+        <amount>19.96</amount>
+        <tags>
+            <tag id="10">Trasporto</tag>
+        </tags>
+    </operation>
+    <operation>
+        <id>6</id>
+        <author>Anna</author>
+        <description>stipendio</description>
+        <date>02/10/2025</date>
+        <amount>19.96</amount>
+        <tags>
+            <tag id="10">Trasporto</tag>
+        </tags>
+    </operation>
+    <operation>
+        <id>7</id>
+        <author>Anna</author>
+        <description>spesa</description>
+        <date>28/08/2025</date>
+        <amount>-4.99</amount>
+        <tags>
+            <tag id="5">Cibo</tag>
         </tags>
     </operation>
 </operations>

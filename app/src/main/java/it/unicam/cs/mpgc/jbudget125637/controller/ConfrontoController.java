@@ -10,256 +10,344 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
-
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.StackedBarChart;
-
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class ConfrontoController {
 
-    @FXML
-    private DatePicker conf_dadata;
-    @FXML
-    private DatePicker conf_adata;
-    @FXML
-    private PieChart conf_tortain;
-    @FXML
-    private PieChart conf_tortaout;
-    @FXML
-    private StackedBarChart conf_stack;
-    @FXML
-    private ListView conf_resoconto;
+    private OperationXmlRepository operationRepository;
+    private TagXmlRepository tagRepository;
+    private UserXmlRepository userRepository;
 
-    List<Operation> filtered = new ArrayList<>();
-    List<Operation> operations = new ArrayList<>();
-    List<Tags> tags = new ArrayList<>();
-    List<Author> autori = new ArrayList<>();
+    @FXML private DatePicker conf_dadata;
+    @FXML private DatePicker conf_adata;
+    @FXML private PieChart conf_tortain;
+    @FXML private PieChart conf_tortaout;
+    @FXML private StackedBarChart<String, Number> conf_stackentrate;
+    @FXML private StackedBarChart<String, Number> conf_stackuscite;
+    @FXML private ListView<String> conf_resoconto;
 
+    private List<Operation> filteredOperations = new ArrayList<>();
+    private List<Operation> allOperations = new ArrayList<>();
+    private List<Tags> allTags = new ArrayList<>();
+    private List<Author> allAuthors = new ArrayList<>();
+
+    public ConfrontoController() {
+    }
+
+    @FXML
     public void initialize() {
-        aggiorna();
-        // Listener per conf_dadata
-        conf_dadata.valueProperty().addListener((obs, oldVal, newVal) -> {
-            reloadData();
-        });
+        this.operationRepository = new OperationXmlRepository();
+        this.tagRepository = new TagXmlRepository();
+        this.userRepository = new UserXmlRepository();
 
-        // Listener per conf_adata
-        conf_adata.valueProperty().addListener((obs, oldVal, newVal) -> {
-            reloadData();
-        });
-
+        loadAllData();
+        setupDateListeners();
+        reloadVisualizations();
     }
 
-    public void aggiorna()
-    {
-        loadData();
-        reloadData();
-
+    /**
+     * Sets up listeners for date pickers to automatically reload data when dates change
+     */
+    private void setupDateListeners() {
+        conf_dadata.valueProperty().addListener((obs, oldVal, newVal) -> reloadVisualizations());
+        conf_adata.valueProperty().addListener((obs, oldVal, newVal) -> reloadVisualizations());
     }
 
-    public void filteredOperations() {
-        filtered.clear();
+    /**
+     * Loads all data from repositories
+     */
+    public void loadAllData() {
+        allAuthors = userRepository.read();
+        allOperations = operationRepository.read();
+        allTags = tagRepository.readChild();
+    }
+
+    /**
+     * Reloads all visualizations with current data and filters
+     */
+    public void reloadVisualizations() {
+        filterOperationsByDate();
+        updatePieCharts();
+        updateStackedBarCharts();
+        updateSummaryReport();
+    }
+
+    /**
+     * Filters operations based on selected date range
+     */
+    private void filterOperationsByDate() {
         LocalDate startDate = conf_dadata.getValue();
         LocalDate endDate = conf_adata.getValue();
 
-        System.out.println("Filtro applicato: da " + startDate + " a " + endDate);
+        Predicate<Operation> dateFilter = createDateFilter(startDate, endDate);
+        filteredOperations = allOperations.stream()
+                .filter(dateFilter)
+                .toList();
+    }
 
-        for (Operation op : operations) {
+    /**
+     * Creates a date filter predicate based on start and end dates
+     */
+    private Predicate<Operation> createDateFilter(LocalDate startDate, LocalDate endDate) {
+        return operation -> {
             try {
-                LocalDate opDate = LocalDate.parse(op.getDate());
-
-                boolean include = true;
-
-                if (startDate != null && opDate.isBefore(startDate)) {
-                    include = false;
-                }
-                if (endDate != null && opDate.isAfter(endDate)) {
-                    include = false;
-                }
-
-                if (include) {
-                    filtered.add(op);
-                    System.out.println("Inclusa: " + op.getDesc() + " - " + opDate);
-                }
+                LocalDate operationDate = LocalDate.parse(operation.getDate());
+                return (startDate == null || !operationDate.isBefore(startDate)) &&
+                        (endDate == null || !operationDate.isAfter(endDate));
             } catch (Exception e) {
-                System.err.println("Operazione saltata: " + op.getDate());
+                return false; // Skip operations with invalid dates
             }
-        }
-
-        System.out.println("Totale operazioni filtrate: " + filtered.size());
+        };
     }
 
-    public void reloadData() {
-        filteredOperations();
-        updatePieCharts();
-        updateStackedBar();
-        updateResoconto();
+    /**
+     * Updates both pie charts
+     */
+    private void updatePieCharts() {
+        updatePieChart(conf_tortain, amount -> amount > 0, "Entrate");
+        updatePieChart(conf_tortaout, amount -> amount < 0, "Uscite");
     }
 
-
-    public void loadData() {
-        UserXmlRepository userXmlRepository = new UserXmlRepository();
-        autori = userXmlRepository.read();
-
-        OperationXmlRepository operationXmlRepository = new OperationXmlRepository();
-        operations = operationXmlRepository.read();
-
-        TagXmlRepository tagXmlRepository = new TagXmlRepository();
-        tags = tagXmlRepository.readChild();
-
-
-    }
-
-    public void updatePieCharts() {
-        updatePieChart(conf_tortain, true, "Entrate");   // solo valori positivi
-        updatePieChart(conf_tortaout, false, "Uscite"); // solo valori negativi
-    }
-
-    private void updatePieChart(PieChart chart, boolean positiveOnly, String title) {
-        chart.getData().clear();
-        if (filtered == null || filtered.isEmpty() || tags == null) {
+    /**
+     * Updates a specific pie chart with filtered data
+     */
+    private void updatePieChart(PieChart chart, Predicate<Double> amountFilter, String title) {
+        if (filteredOperations.isEmpty() || allTags.isEmpty()) {
+            chart.getData().clear();
             return;
         }
 
+        ObservableList<PieChart.Data> pieData = createPieChartData(amountFilter);
+        configurePieChart(chart, pieData, title);
+    }
+
+    /**
+     * Creates pie chart data based on amount filter
+     */
+    private ObservableList<PieChart.Data> createPieChartData(Predicate<Double> amountFilter) {
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
 
-        for (Tags tag : tags) {
-            double totale = 0.0;
-            for (Operation op : filtered) {
-                boolean match = op.getTags().stream()
-                        .anyMatch(t -> t.description().trim().equalsIgnoreCase(tag.description().trim()));
-                if (match) {
-                    double amount = op.getAmount();
-                    if ((positiveOnly && amount > 0) || (!positiveOnly && amount < 0)) {
-                        totale += amount;
-                    }
-                }
+        allTags.forEach(tag -> {
+            double total = calculateTagTotal(tag, amountFilter);
+            if (total != 0) {
+                pieData.add(new PieChart.Data(tag.description().trim(), Math.abs(total)));
             }
+        });
 
-            if (totale != 0) {
-                pieData.add(new PieChart.Data(tag.description().trim(), Math.abs(totale)));
-            }
-        }
+        return pieData;
+    }
 
+    /**
+     * Calculates total amount for a specific tag and amount filter
+     */
+    private double calculateTagTotal(Tags tag, Predicate<Double> amountFilter) {
+        return filteredOperations.stream()
+                .filter(operation -> hasTag(operation, tag))
+                .mapToDouble(Operation::getAmount)
+                .filter(amountFilter::test)
+                .sum();
+    }
+
+    /**
+     * Checks if operation has the specified tag
+     */
+    private boolean hasTag(Operation operation, Tags tag) {
+        return operation.getTags().stream()
+                .anyMatch(t -> t.description().trim().equalsIgnoreCase(tag.description().trim()));
+    }
+
+    /**
+     * Configures pie chart appearance
+     */
+    private void configurePieChart(PieChart chart, ObservableList<PieChart.Data> data, String title) {
         chart.setTitle(title);
         chart.setLegendVisible(true);
         chart.setLegendSide(Side.BOTTOM);
         chart.setLabelsVisible(true);
         chart.setLabelLineLength(10);
-        chart.setData(pieData);
+        chart.setData(data);
     }
 
-
-    public void updateStackedBar() {
-        conf_stack.getData().clear();
-        if (filtered == null || filtered.isEmpty() || tags == null || autori == null) {
+    /**
+     * Updates both stacked bar charts
+     */
+    private void updateStackedBarCharts() {
+        if (filteredOperations.isEmpty() || allTags.isEmpty() || allAuthors.isEmpty()) {
+            conf_stackentrate.getData().clear();
+            conf_stackuscite.getData().clear();
             return;
         }
 
-        // Pre-calcola i totali per autore e tag
+        BarChartData positiveData = calculateBarChartData(amount -> amount > 0);
+        BarChartData negativeData = calculateBarChartData(amount -> amount < 0);
+
+        conf_stackentrate.setData(positiveData.series());
+        conf_stackentrate.setTitle("Entrate per Autore");
+        conf_stackentrate.setLegendVisible(true);
+
+        conf_stackuscite.setData(negativeData.series());
+        conf_stackuscite.setTitle("Uscite per Autore");
+        conf_stackuscite.setLegendVisible(true);
+    }
+
+    /**
+     * Calculates data for stacked bar chart based on amount filter
+     */
+    private BarChartData calculateBarChartData(Predicate<Double> amountFilter) {
+        Map<String, Map<String, Double>> totalsMap = initializeTotalsMap();
+
+        filteredOperations.forEach(operation -> {
+            if (operation.getAutore() == null || operation.getTags() == null) return;
+
+            String author = operation.getAutore();
+            double amount = operation.getAmount();
+
+            if (totalsMap.containsKey(author) && amountFilter.test(amount)) {
+                operation.getTags().forEach(tag -> {
+                    double current = totalsMap.get(author).getOrDefault(tag.description(), 0.0);
+                    totalsMap.get(author).put(tag.description(), current + Math.abs(amount));
+                });
+            }
+        });
+
+        return createBarChartSeries(totalsMap);
+    }
+
+    /**
+     * Initializes totals map with authors and tags
+     */
+    private Map<String, Map<String, Double>> initializeTotalsMap() {
         Map<String, Map<String, Double>> totalsMap = new HashMap<>();
 
-        // Inizializza la mappa
-        for (Author autore : autori) {
-            totalsMap.put(autore.name(), new HashMap<>());
-            for (Tags tag : tags) {
-                totalsMap.get(autore.name()).put(tag.description(), 0.0);
-            }
-        }
+        allAuthors.forEach(author -> {
+            Map<String, Double> tagMap = new HashMap<>();
+            allTags.forEach(tag -> tagMap.put(tag.description(), 0.0));
+            totalsMap.put(author.name(), tagMap);
+        });
 
-        // Popola la mappa con i dati
-        for (Operation op : filtered) {
-            if (op.getAutore() == null || op.getTags() == null) continue;
+        return totalsMap;
+    }
 
-            String autore = op.getAutore();
-            for (Tags tag : op.getTags()) {
-                if (totalsMap.containsKey(autore) && totalsMap.get(autore).containsKey(tag.description())) {
-                    double current = totalsMap.get(autore).get(tag.description());
-                    totalsMap.get(autore).put(tag.description(), current + Math.abs(op.getAmount()));
-                }
-            }
-        }
-
-        // Crea le series per TAG (sull'asse X ci saranno gli AUTORI)
+    /**
+     * Creates bar chart series from totals map
+     */
+    private BarChartData createBarChartSeries(Map<String, Map<String, Double>> totalsMap) {
         ObservableList<StackedBarChart.Series<String, Number>> seriesList = FXCollections.observableArrayList();
 
-        for (Tags tag : tags) {
+        allTags.forEach(tag -> {
             StackedBarChart.Series<String, Number> series = new StackedBarChart.Series<>();
             series.setName(tag.description());
 
-            for (Author autore : autori) {
-                double totale = totalsMap.get(autore.name()).get(tag.description());
-                series.getData().add(new StackedBarChart.Data<>(autore.name(), totale));
-            }
+            allAuthors.forEach(author -> {
+                double total = totalsMap.get(author.name()).get(tag.description());
+                series.getData().add(new StackedBarChart.Data<>(author.name(), total));
+            });
 
-            // Aggiungi la serie solo se ha dati > 0
             if (series.getData().stream().anyMatch(data -> data.getYValue().doubleValue() > 0)) {
                 seriesList.add(series);
             }
-        }
+        });
 
-        conf_stack.setData(seriesList);
-        conf_stack.setTitle("Spese/Entrate per Autore");
-        conf_stack.setLegendVisible(true);
+        return new BarChartData(seriesList);
     }
 
-
-    public void updateResoconto() {
-        if (filtered == null || filtered.isEmpty()) {
-            conf_resoconto.getItems().clear();
-            conf_resoconto.getItems().add("Nessuna operazione disponibile");
+    /**
+     * Updates the summary report list view
+     */
+    private void updateSummaryReport() {
+        if (filteredOperations.isEmpty()) {
+            showNoOperationsMessage();
             return;
         }
 
-        LocalDate startDate = conf_dadata.getValue();
-        LocalDate endDate = conf_adata.getValue();
+        FinancialSummary summary = calculateFinancialSummary();
+        displayFinancialSummary(summary);
+    }
+
+    /**
+     * Calculates financial summary from filtered operations
+     */
+    private FinancialSummary calculateFinancialSummary() {
         LocalDate today = LocalDate.now();
+        FinancialSummary summary = new FinancialSummary();
 
-        double totaleEntrate = 0.0;
-        double totaleUscite = 0.0;
-        double totaleEntrateProg = 0.0;
-        double totaleUsciteProg = 0.0;
-
-        for (Operation op : filtered) {
+        filteredOperations.forEach(operation -> {
             try {
-                LocalDate opDate = LocalDate.parse(op.getDate());
+                LocalDate operationDate = LocalDate.parse(operation.getDate());
+                double amount = operation.getAmount();
 
-                // Controlla se è nel range selezionato
-                boolean inRange = (startDate == null || !opDate.isBefore(startDate)) &&
-                        (endDate == null || !opDate.isAfter(endDate));
-
-                if (!inRange) continue;
-
-                // Separazione eseguite/programmate
-                if (opDate.isAfter(today)) {
-                    // Programmate
-                    if (op.getAmount() > 0) totaleEntrateProg += op.getAmount();
-                    else if (op.getAmount() < 0) totaleUsciteProg += op.getAmount();
+                if (operationDate.isAfter(today)) {
+                    summary.addProgrammed(amount);
                 } else {
-                    // Eseguite
-                    if (op.getAmount() > 0) totaleEntrate += op.getAmount();
-                    else if (op.getAmount() < 0) totaleUscite += op.getAmount();
+                    summary.addExecuted(amount);
                 }
             } catch (Exception e) {
-                System.err.println("Errore elaborazione operazione: " + op);
+                // Log error but continue processing other operations
+                System.err.println("Errore elaborazione operazione: " + operation);
             }
-        }
+        });
 
+        return summary;
+    }
+
+    /**
+     * Displays financial summary in the list view
+     */
+    private void displayFinancialSummary(FinancialSummary summary) {
         conf_resoconto.getItems().clear();
         conf_resoconto.getItems().addAll(
-                "Entrate eseguite: " + String.format("%.2f €", totaleEntrate),
-                "Uscite eseguite: " + String.format("%.2f €", Math.abs(totaleUscite)),
-                "Entrate programmate: " + String.format("%.2f €", totaleEntrateProg),
-                "Uscite programmate: " + String.format("%.2f €", Math.abs(totaleUsciteProg)),
-                "Saldo attuale: " + String.format("%.2f €", (totaleEntrate + totaleUscite)),
-                "Saldo futuro: " + String.format("%.2f €", (totaleEntrate + totaleUscite + totaleEntrateProg + totaleUsciteProg))
+                "Entrate eseguite: " + String.format("%.2f €", summary.getExecutedIncome()),
+                "Uscite eseguite: " + String.format("%.2f €", Math.abs(summary.getExecutedExpense())),
+                "Entrate programmate: " + String.format("%.2f €", summary.getProgrammedIncome()),
+                "Uscite programmate: " + String.format("%.2f €", Math.abs(summary.getProgrammedExpense())),
+                "Saldo attuale: " + String.format("%.2f €", summary.getCurrentBalance()),
+                "Saldo futuro: " + String.format("%.2f €", summary.getFutureBalance())
         );
     }
 
+    /**
+     * Shows message when no operations are available
+     */
+    private void showNoOperationsMessage() {
+        conf_resoconto.getItems().clear();
+        conf_resoconto.getItems().add("Nessuna operazione disponibile");
+    }
+
+    private record BarChartData(ObservableList<StackedBarChart.Series<String, Number>> series) {}
+
+    private static class FinancialSummary {
+        private double executedIncome = 0;
+        private double executedExpense = 0;
+        private double programmedIncome = 0;
+        private double programmedExpense = 0;
+
+        public void addExecuted(double amount) {
+            if (amount > 0) executedIncome += amount;
+            else executedExpense += amount;
+        }
+
+        public void addProgrammed(double amount) {
+            if (amount > 0) programmedIncome += amount;
+            else programmedExpense += amount;
+        }
+
+        public double getExecutedIncome() { return executedIncome; }
+        public double getExecutedExpense() { return executedExpense; }
+        public double getProgrammedIncome() { return programmedIncome; }
+        public double getProgrammedExpense() { return programmedExpense; }
+        public double getCurrentBalance() { return executedIncome + executedExpense; }
+        public double getFutureBalance() {
+            return executedIncome + executedExpense + programmedIncome + programmedExpense;
+        }
+    }
 }

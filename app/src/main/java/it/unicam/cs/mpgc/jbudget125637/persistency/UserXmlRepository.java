@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.jbudget125637.persistency;
 
 import it.unicam.cs.mpgc.jbudget125637.model.Author;
 import org.w3c.dom.*;
+
 import javax.xml.parsers.*;
 import java.io.File;
 import java.util.ArrayList;
@@ -11,6 +12,11 @@ public class UserXmlRepository implements IOOperationRepository<Author> {
 
     private final String filePath = "app/data/users.xml";
 
+    /**
+     * Legge gli utenti dal file XML e li restituisce come lista di oggetti Author.
+     *
+     * @return Lista di oggetti Author letti dal file XML.
+     */
     @Override
     public List<Author> read() {
         List<Author> authors = new ArrayList<>();
@@ -31,6 +37,9 @@ public class UserXmlRepository implements IOOperationRepository<Author> {
         return authors;
     }
 
+    /**
+     * metodi per implementazioni future
+     */
     @Override
     public void save(List<Author> items) {
         // sviluppi futuri: Implementa la scrittura su users.xml

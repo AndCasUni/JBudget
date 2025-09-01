@@ -1,91 +1,87 @@
 package it.unicam.cs.mpgc.jbudget125637.controller;
 
 import it.unicam.cs.mpgc.jbudget125637.model.*;
-import it.unicam.cs.mpgc.jbudget125637.persistency.OperationXmlRepository;
-import it.unicam.cs.mpgc.jbudget125637.persistency.TagXmlRepository;
-import it.unicam.cs.mpgc.jbudget125637.persistency.UserXmlRepository;
+import it.unicam.cs.mpgc.jbudget125637.service.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddController {
 
+    // UI Components
+    @FXML private TextField add_imp;
+    @FXML private TextField add_desc;
+    @FXML private DatePicker add_data;
+    @FXML private ComboBox<String> add_autore;
+    @FXML private RadioButton add_entrata;
+    @FXML private RadioButton add_out;
+    @FXML private CheckBox add_rep;
+    @FXML private CheckBox add_rata;
+    @FXML private ChoiceBox<String> add_freq;
+    @FXML private TextField add_occ;
+    @FXML private TableView<OperationRow> add_recenti;
+    @FXML private TableColumn<OperationRow, String> add_recautore;
+    @FXML private TableColumn<OperationRow, String> add_recdata;
+    @FXML private TableColumn<OperationRow, Double> add_recimporto;
+    @FXML private ComboBox<String> add_sottocat;
+    @FXML private ListView<String> add_tags;
+    @FXML private ToggleGroup main_tag;
+
+    // Services
+    private final OperationService operationService;
+    private final TagService tagService;
+    private final AuthorService authorService;
+    private final ValidationService validationService;
+    private final OperationRecurrenceService recurrenceService;
+
+    private List<Operation> operations;
+    private String maxId;
+
+    public AddController() {
+        this.operationService = new OperationService();
+        this.tagService = new TagService();
+        this.authorService = new AuthorService();
+        this.validationService = new ValidationService();
+        this.recurrenceService = new OperationRecurrenceService();
+    }
 
     @FXML
-    private TextField add_imp;
-    @FXML
-    private TextField add_desc;
-    @FXML
-    private DatePicker add_data;
-    @FXML
-    private ComboBox add_autore;
-    @FXML
-    private RadioButton add_entrata;
-    @FXML
-    private RadioButton add_out;
-    @FXML
-    private CheckBox add_rep;
-    @FXML
-    private CheckBox add_rata;
-    @FXML
-    private ChoiceBox add_freq;
-    @FXML
-    private TextField add_occ;
-    @FXML
-    private TableView<OperationRow> add_recenti;
-    @FXML
-    private TableColumn<OperationRow, String> add_recautore;
-    @FXML
-    private TableColumn<OperationRow, String> add_recdata;
-    @FXML
-    private TableColumn<OperationRow, Double> add_recimporto;
-
-    @FXML
-    private ComboBox add_sottocat;
-    @FXML
-    private ListView add_tags;
-
-    @FXML
-    private ToggleGroup main_tag;
-
-    String maxId;
-    OperationXmlRepository operationXmlRepository = new OperationXmlRepository();
-    TagXmlRepository tagXmlRepository = new TagXmlRepository();
-
-    List<Operation> operations = new ArrayList<>();
-    List<Tags> alltags = new ArrayList<>();
-
-    /**
-     * Inizializza la vista e i componenti della form.
-     * - Configura le colonne della tabella delle operazioni recenti.
-     * - Carica frequenze, sottocategorie e autori.
-     * - Imposta i listener per la selezione di categorie e checkBox (ricorrenza/rata).
-     */
     public void initialize() {
-        operations = operationXmlRepository.read();
-        alltags = tagXmlRepository.readChild();
-        refreshList();
+        initializeServices();
+        setupTableColumns();
+        setupFrequencyOptions();
+        setupEventListeners();
+        loadInitialData();
+    }
 
+    private void initializeServices() {
+        operations = operationService.getAllOperations();
+    }
+
+    private void setupTableColumns() {
         add_recautore.setCellValueFactory(new PropertyValueFactory<>("author"));
         add_recdata.setCellValueFactory(new PropertyValueFactory<>("date"));
         add_recimporto.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        //caricare ripetizioni ( mensile 31 , settimanale 7, annuale 365 , giornaliera 1 )
-        add_freq.setItems(FXCollections.observableArrayList("Giornaliera", "Settimanale", "Mensile", "Annuale"));
+    }
 
-        loadSottocat(null);
-        //add_sottocat se nessuno toggle button è selezionato contiene tutte le sottocategorie altrimenti solo le sottocategorie della categoria( togglebutton) selezionata
+    private void setupFrequencyOptions() {
+        add_freq.setItems(FXCollections.observableArrayList(
+                "Giornaliera", "Settimanale", "Mensile", "Annuale"
+        ));
+    }
 
+    private void setupEventListeners() {
+        setupCategorySelectionListener();
+        setupRepetitionRateListeners();
+        setupFrequencyVisibility();
+    }
+
+    private void setupCategorySelectionListener() {
         main_tag.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
                 loadSottocat(((ToggleButton) newToggle).getText());
@@ -93,373 +89,210 @@ public class AddController {
                 loadSottocat(null);
             }
         });
+    }
 
-        add_freq.setVisible(false);
-        add_occ.setVisible(false);
-        // leggere autori dal file
-        loadAutore();
-
-
-
+    private void setupRepetitionRateListeners() {
         add_rep.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if (isNowSelected) {
                 add_rata.setSelected(false);
             }
+            updateFrequencyVisibility();
         });
 
-        // Quando checkBox2 viene selezionata, deseleziona checkBox1
         add_rata.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
             if (isNowSelected) {
                 add_rep.setSelected(false);
             }
+            updateFrequencyVisibility();
         });
-
     }
 
-    ;
+    private void setupFrequencyVisibility() {
+        add_freq.setVisible(false);
+        add_occ.setVisible(false);
+    }
 
-    /**
-     * Inserisce una nuova operazione leggendo i dati dai campi della form.
-     * Esegue i seguenti controlli:
-     * - Tutti i campi obbligatori devono essere compilati.
-     * - L'importo deve essere un numero valido.
-     * - Se è un'uscita, l'importo viene reso negativo.
-     * - Se si tratta di rata o ricorrenza, genera più inserimenti con date calcolate.
-     *
-     * In caso di errore, mostra un alert con il messaggio opportuno.
-     * In caso di successo, inserisce i dati in XML, mostra conferma e ricarica la lista recenti.
-     */
+    private void loadInitialData() {
+        refreshRecentOperationsList();
+        loadSottocat(null);
+        loadAuthors();
+    }
+
+    @FXML
     public void addInsert() {
-
-        //controllare che tutti i campi siano popolati
-        int numInsert = 1; // Numero di inserimenti, da incrementare se necessario
-        String importo = add_imp.getText();
-        String descrizione = add_desc.getText();
-        String data = add_data.getValue() != null ? add_data.getValue().toString() : null;
-        String autore = (String) add_autore.getValue();
-        boolean entrata = add_entrata.isSelected();
-        boolean uscita = add_out.isSelected();
-        boolean ripetizione = add_rep.isSelected();
-        boolean rata = add_rata.isSelected();
-        String frequenza = (String) add_freq.getValue();
-        String occorrenze = add_occ.getText();
-        List<String> selec = add_tags.getItems();
-        List<Tags> tags = new ArrayList<>();
-        Tags found = null;
-        for (String s : selec)
-        {
-            for (Tags t : alltags)
-            {
-                if(t.getDescription().equalsIgnoreCase(s))
-                {
-                    found = t;
-                    break;
-                }
-            }
-            if(found == null) continue;
-
-            tags.add(found);
-        }
-        List<String> dateRicorrenze = new ArrayList<>();
-        dateRicorrenze.add(data);
-        //autore non null
-        if (importo == null || importo.isBlank() || descrizione == null || descrizione.isBlank() ||
-                data == null || data.isBlank() || autore == null || autore.isBlank() ||
-                (!entrata && !uscita) || (ripetizione && (frequenza == null || frequenza.isBlank())) ||
-                (ripetizione && rata && (occorrenze == null || occorrenze.isBlank())) ||
-                selec.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Errore");
-            alert.setHeaderText(null);
-            alert.setContentText("Tutti i campi devono essere compilati.");
-            alert.showAndWait();
-            return;
-        }
-        //importo non null
-        //controllare che uno tra in e out sia selezionato
-        //se out l'importo va inserito negativo
-        double importoValue;
         try {
-            importoValue = Double.parseDouble(importo);
-            if (uscita) {
-                importoValue = -importoValue; // Se è un'uscita, l'importo deve essere negativo
-            }
-        } catch (NumberFormatException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Errore");
-            alert.setHeaderText(null);
-            alert.setContentText("L'importo deve essere un numero valido.");
-            alert.showAndWait();
-            return;
-        }
+            OperationData operationData = collectOperationData();
 
-
-        if (ripetizione || rata) {
-            // Logica per gestire le ricorrenze
-            int occorrenzeValue;
-            try {
-                occorrenzeValue = Integer.parseInt(occorrenze);
-                if (occorrenzeValue <= 0) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Errore");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Il numero di occorrenze deve essere maggiore di zero.");
-                    alert.showAndWait();
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Errore");
-                alert.setHeaderText(null);
-                alert.setContentText("Il numero di occorrenze deve essere un numero valido.");
-                alert.showAndWait();
+            if (!validationService.validateOperationData(operationData)) {
+                showValidationError();
                 return;
             }
 
-            int intervallo;
-            // Logica per gestire la frequenza delle ricorrenze
-            if (add_freq.getValue().equals("Giornaliera")) {
-                intervallo = 1;
-            } else if (add_freq.getValue().equals("Settimanale")) {
-                intervallo = 7;
-            } else if (add_freq.getValue().equals("Mensile")) {
-                intervallo = 31;
-            } else if (add_freq.getValue().equals("Annuale")) {
-                intervallo = 365;
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Errore");
-                alert.setHeaderText(null);
-                alert.setContentText("Frequenza non valida.");
-                alert.showAndWait();
-                return;
-            }
-            // Aggiungi qui la logica per gestire le ricorrenze in base alla frequenza selezionata
-            //calcolo delle date per le ricorrenze
-            //le inserisco in un array di stringhe
-            for (int i = 0; i < occorrenzeValue; i++) {
-                // Calcolo la data per ogni ricorrenza
-                String ricorrenzaData = add_data.getValue().plusDays((i + 1) * intervallo).toString();
-                dateRicorrenze.add(ricorrenzaData);
+            List<Operation> operationsToAdd = createOperations(operationData);
+            operationService.saveOperations(operationsToAdd);
 
-            }
-            numInsert = occorrenzeValue;
+            showSuccessMessage();
+            cleanAll();
+            refreshRecentOperationsList();
+
+        } catch (Exception e) {
+            showError("Errore durante l'inserimento: " + e.getMessage());
         }
-
-        for (int i = 0; i < numInsert; i++) {
-            Operation newElement = null;
-            String newId = String.valueOf(Integer.parseInt(maxId) + 1); // Genera un nuovo ID univoco per l'operazione
-            // Creazione dell'elemento da inserire
-            if (rata) {
-                newElement = new Operation(
-                        newId,
-                        autore,// ID univoco, da generare in modo appropriato
-                        descrizione,
-                        importoValue / numInsert,
-                        dateRicorrenze.get(i),
-                        tags
-                );
-            } else {
-                newElement = new Operation(
-                        newId,
-                        autore,// ID univoco, da generare in modo appropriato
-                        descrizione,
-                        importoValue,
-                        dateRicorrenze.get(i),
-                        tags
-                );
-            }
-
-            // Aggiunta dell'elemento all'arraydelle operazioni
-            try {
-                operations.add(newElement);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Errore");
-                alert.setHeaderText(null);
-                alert.setContentText("Errore durante l'inserimento dei dati. " + newElement.toString());
-                alert.showAndWait();
-                return;
-            }
-        }
-
-
-        // Mostrare un messaggio di successo
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Successo");
-        alert.setHeaderText(null);
-        alert.setContentText("Dati inseriti con successo.");
-        alert.showAndWait();
-        cleanAll();
-        operationXmlRepository.save(operations);
-        refreshList();
     }
-    /**
-     * Pulisce tutti i campi della form e ripristina lo stato iniziale.
-     */
+
+    private OperationData collectOperationData() {
+        return new OperationData(
+                add_imp.getText(),
+                add_desc.getText(),
+                add_data.getValue(),
+                (String) add_autore.getValue(),
+                add_entrata.isSelected(),
+                add_out.isSelected(),
+                add_rep.isSelected(),
+                add_rata.isSelected(),
+                (String) add_freq.getValue(),
+                add_occ.getText(),
+                add_tags.getItems()
+        );
+    }
+
+    private List<Operation> createOperations(OperationData operationData) {
+        double amount = calculateAmount(operationData);
+        List<String> dates = calculateDates(operationData);
+        List<Tags> tags = resolveTags(operationData.getSelectedTags());
+
+        return recurrenceService.generateOperations(
+                operationData, amount, dates, tags, getNextOperationId()
+        );
+    }
+
+    private double calculateAmount(OperationData operationData) {
+        double amount = Double.parseDouble(operationData.getImporto());
+        if (operationData.isUscita()) {
+            amount = -amount;
+        }
+        return amount;
+    }
+
+    private List<String> calculateDates(OperationData operationData) {
+        if (operationData.isRipetizione() || operationData.isRata()) {
+            return recurrenceService.calculateRecurrenceDates(
+                    operationData, add_data.getValue()
+            );
+        }
+        List<String> dates = new ArrayList<>();
+        dates.add(add_data.getValue().toString());
+        return dates;
+    }
+
+    private List<Tags> resolveTags(List<String> selectedTags) {
+        List<Tags> allTags = tagService.getAllTags();
+        List<Tags> resolvedTags = new ArrayList<>();
+
+        for (String selectedTag : selectedTags) {
+            allTags.stream()
+                    .filter(tag -> tag.description().equalsIgnoreCase(selectedTag))
+                    .findFirst()
+                    .ifPresent(resolvedTags::add);
+        }
+
+        return resolvedTags;
+    }
+
+    private String getNextOperationId() {
+        return String.valueOf(Integer.parseInt(maxId) + 1);
+    }
+
+    @FXML
     public void cleanAll() {
-        // Logica per pulire tutti i campi
-        add_imp.clear();
-        add_desc.clear();
-        add_data.setValue(null);
-        add_autore.getSelectionModel().clearSelection();
-        add_entrata.setSelected(false);
-        add_out.setSelected(false);
-        add_rep.setSelected(false);
-        add_rata.setSelected(false);
-        add_freq.getSelectionModel().clearSelection();
-        add_occ.clear();
-        add_tags.getItems().clear();
-        main_tag.selectToggle(null); // Deseleziona tutti i ToggleButton
-        add_sottocat.getSelectionModel().clearSelection();
+        FormCleaner.cleanAll(
+                add_imp, add_desc, add_data, add_autore,
+                add_entrata, add_out, add_rep, add_rata,
+                add_freq, add_occ, add_tags, main_tag, add_sottocat
+        );
+        updateFrequencyVisibility();
     }
 
+    public void refreshRecentOperationsList() {
+        operations = operationService.getAllOperations();
+        ObservableList<OperationRow> recentOperations =
+                operationService.getRecentOperations(10);
 
-    public void refreshList()
-    {
-        ObservableList<OperationRow> data = FXCollections.observableArrayList();
-        for (Operation op : operations) {
-            data.add(new OperationRow(op.autore(), op.date(), op.getAmount()));
-            maxId = op.getId();
-        }
-        if(maxId == null) maxId = "0";
-
-
-        add_recenti.setItems(data);
+        add_recenti.setItems(recentOperations);
+        updateMaxId();
     }
 
+    private void updateMaxId() {
+        maxId = operationService.getMaxOperationId(operations);
+    }
 
-    /**
-     * Aggiunge un tag alla lista dei tags.
-     * - Se una sottocategoria è selezionata, viene utilizzata come tag.
-     * - Altrimenti, viene utilizzata la categoria (ToggleButton) selezionata.
-     *
-     * Se il tag è già presente o se si superano i 3 tag, viene mostrato un messaggio di errore.
-     */
+    @FXML
     public void addTag() {
-        List<String> tags = add_tags.getItems();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        String tagToAdd = determineTagToAdd();
 
-        // Trovo il ToggleButton selezionato dal gruppo main_tag
-        Toggle selectedToggle = main_tag.getSelectedToggle();
-        String categoria = (selectedToggle != null) ? ((ToggleButton) selectedToggle).getText() : null;
-        String tagToAdd = null;
-// Sottocategoria selezionata dalla comboBox
-        String sottocategoria = (String) add_sottocat.getValue();
-        if (sottocategoria != null && !sottocategoria.isBlank()) {
-            // Priorità alla sottocategoria
-            tagToAdd = sottocategoria;
-        } else if (categoria != null) {
-            tagToAdd = categoria;
-        }
-
-
-        if (tags.contains(tagToAdd)) {
-
-            alert.setTitle("Errore");
-            alert.setHeaderText(null);
-            alert.setContentText("Tag già presente.");
-            alert.showAndWait();
+        if (!validationService.validateTagAddition(tagToAdd, add_tags.getItems())) {
             return;
         }
 
-        if (tags.size() >= 3) {
-            alert.setTitle("Errore");
-            alert.setHeaderText(null);
-            alert.setContentText("Puoi aggiungere al massimo 3 tag.");
-            alert.showAndWait();
-            return;
-        }
-        if(tagToAdd == null || tagToAdd.isBlank())
-        {
-            alert.setTitle("Errore");
-            alert.setHeaderText(null);
-            alert.setContentText("Seleziona una categoria o sottocategoria.");
-            alert.showAndWait();
-            return;
-        }
-        tags.add(tagToAdd);
+        add_tags.getItems().add(tagToAdd);
     }
 
-    /**
-     * Elimina il tag selezionato dalla lista {@code add_tags}, se presente.
-     */
+    private String determineTagToAdd() {
+        String sottocategoria = add_sottocat.getValue();
+        if (sottocategoria != null && !sottocategoria.isBlank()) {
+            return sottocategoria;
+        }
+
+        Toggle selectedToggle = main_tag.getSelectedToggle();
+        if (selectedToggle != null) {
+            return ((ToggleButton) selectedToggle).getText();
+        }
+
+        return null;
+    }
+
+    @FXML
     public void delTag() {
-        // Logic to delete a tag
-        //elimina il tag selezionato dalla lista dei tags
-        String selected = (String) add_tags.getSelectionModel().getSelectedItem();
+        String selected = add_tags.getSelectionModel().getSelectedItem();
         if (selected != null) {
             add_tags.getItems().remove(selected);
         }
     }
 
-    /**
-     * Gestisce la visibilità dei campi {@code add_freq} e {@code add_occ}.
-     * Questi campi sono visibili solo se è selezionato almeno uno tra "ripetizione" e "rata".
-     */
-    public void setVisible() {
-        // Logica per rendere visibili i campi add_freq e add_occ solo se add_rep o add_rata sono selezionati
-        boolean isRepSelected = add_rep.isSelected();
-        boolean isRataSelected = add_rata.isSelected();
-        add_freq.setVisible(isRepSelected || isRataSelected);
-        add_occ.setVisible(isRepSelected || isRataSelected);
+    private void updateFrequencyVisibility() {
+        boolean shouldShow = add_rep.isSelected() || add_rata.isSelected();
+        add_freq.setVisible(shouldShow);
+        add_occ.setVisible(shouldShow);
     }
 
-    /**
-     * Carica le sottocategorie dal file {@code tags.xml}.
-     * - Se {@code fam} è null, carica tutte le sottocategorie.
-     * - Altrimenti, carica solo quelle appartenenti alla famiglia/categoria indicata.
-     *
-     * @param fam Nome della categoria principale, oppure null per tutte.
-     */
-    public void loadSottocat(String fam) {
-        List<String> sottocatList = new ArrayList<>();
-        try (FileInputStream in = new FileInputStream("app/data/tags.xml")) {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(in);
-            doc.getDocumentElement().normalize();
-
-            if (fam == null || fam.isBlank()) {
-                NodeList children = doc.getElementsByTagName("chtag");
-                for (int j = 0; j < children.getLength(); j++) {
-                    Element sub = (Element) children.item(j);
-                    sottocatList.add(sub.getAttribute("name"));
-                }
-            } else {
-                NodeList tags = doc.getElementsByTagName("tag");
-                for (int i = 0; i < tags.getLength(); i++) {
-                    Element tag = (Element) tags.item(i);
-                    if (tag.getAttribute("name").equalsIgnoreCase(fam)) {
-                        NodeList children = tag.getElementsByTagName("chtag");
-                        for (int j = 0; j < children.getLength(); j++) {
-                            Element sub = (Element) children.item(j);
-                            sottocatList.add(sub.getAttribute("name"));
-                        }
-                        break;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        add_sottocat.getItems().setAll(sottocatList);
+    @FXML
+    public void loadSottocat(String category) {
+        List<String> subcategories = tagService.getSubcategoriesByCategory(category);
+        add_sottocat.getItems().setAll(subcategories);
     }
 
-    /**
-     * Carica gli autori dal file {@code users.xml} e li inserisce nella comboBox {@code add_autore}.
-     */
-    public void loadAutore() {
-        List<Author> autori = new ArrayList<>();
-        UserXmlRepository userXmlRepository = new UserXmlRepository();
-        autori = userXmlRepository.read();
-
-        for (Author autore : autori) {
-            add_autore.getItems().add(autore.name());
-        }
-
+    private void loadAuthors() {
+        List<String> authors = authorService.getAllAuthorNames();
+        add_autore.getItems().addAll(authors);
     }
 
+    private void showValidationError() {
+        showError("Tutti i campi obbligatori devono essere compilati correttamente.");
+    }
 
+    private void showSuccessMessage() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Successo");
+        alert.setHeaderText(null);
+        alert.setContentText("Dati inseriti con successo.");
+        alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Errore");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

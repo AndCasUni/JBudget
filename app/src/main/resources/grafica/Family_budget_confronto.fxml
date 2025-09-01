@@ -16,21 +16,28 @@
         <children>
             <Label layoutX="65.0" layoutY="38.0" text="Da data" />
             <DatePicker fx:id="conf_dadata" layoutX="121.0" layoutY="34.0" />
-            <Label layoutX="574.0" layoutY="167.0" text="Tag per persona" />
             <Label layoutX="574.0" layoutY="357.0" text="Resoconto" />
-            <StackedBarChart fx:id="conf_stack" layoutX="545.0" layoutY="192.0" prefHeight="149.0" prefWidth="239.0">
-                <xAxis>
-                    <CategoryAxis side="BOTTOM" />
-                </xAxis>
-                <yAxis>
-                    <NumberAxis side="LEFT" />
-                </yAxis>
-            </StackedBarChart>
             <ListView fx:id="conf_resoconto" layoutX="574.0" layoutY="390.0" prefHeight="200.0" prefWidth="200.0" />
         </children></AnchorPane>
       <PieChart fx:id="conf_tortain" layoutX="14.0" layoutY="113.0" prefHeight="222.0" prefWidth="442.0" />
    <PieChart fx:id="conf_tortaout" layoutX="14.0" layoutY="379.0" prefHeight="222.0" prefWidth="442.0" />
       <Label layoutX="361.0" layoutY="41.0" text="A data" />
       <DatePicker fx:id="conf_adata" layoutX="432.0" layoutY="37.0" />
-   <Button fx:id="conf_aggiorna" layoutX="692.0" layoutY="37.0" mnemonicParsing="false" onAction="#aggiorna" text="Aggiorna" />
+    <Button fx:id="conf_aggiorna" layoutX="692.0" layoutY="37.0" mnemonicParsing="false" onAction="#reloadVisualizations" text="Aggiorna" />
+      <StackedBarChart fx:id="conf_stackentrate" layoutX="432.0" layoutY="149.0" prefHeight="149.0" prefWidth="239.0">
+          <xAxis>
+              <CategoryAxis side="BOTTOM" />
+          </xAxis>
+          <yAxis>
+              <NumberAxis side="LEFT" />
+          </yAxis>
+      </StackedBarChart>
+   <StackedBarChart fx:id="conf_stackuscite" layoutX="692.0" layoutY="149.0" prefHeight="149.0" prefWidth="239.0">
+      <xAxis>
+         <CategoryAxis side="BOTTOM" />
+      </xAxis>
+      <yAxis>
+         <NumberAxis side="LEFT" />
+      </yAxis>
+   </StackedBarChart>
             </AnchorPane>

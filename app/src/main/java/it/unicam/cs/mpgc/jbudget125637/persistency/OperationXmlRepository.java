@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.jbudget125637.persistency;
 import it.unicam.cs.mpgc.jbudget125637.model.Operation;
 import it.unicam.cs.mpgc.jbudget125637.model.Tags;
 import org.w3c.dom.*;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
@@ -18,6 +19,11 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
 
     private final String filePath = "app/data/operations.xml";
 
+    /**
+     * Legge il file XML e converte ogni elemento <operation> in un oggetto Operation.
+     * Gestisce la conversione delle date dal formato "dd/MM/yyyy" a "yyyy-MM-dd".
+     * Legge i tag associati ad ogni operazione, se presenti.
+     */
     @Override
     public List<Operation> read() {
         List<Operation> operations = new ArrayList<>();
@@ -64,7 +70,7 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
 
                     Boolean isParent = tagElement.hasAttribute("isParent");
 
-                    tags.add(new Tags(tagId, tagName,isParent));
+                    tags.add(new Tags(tagId, tagName, isParent));
                 }
 
 
@@ -76,6 +82,11 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
         return operations;
     }
 
+    /**
+     * Salva una lista di oggetti Operation nel file XML.
+     * Converte le date dal formato "yyyy-MM-dd" a "dd/MM/yyyy" per la memorizzazione.
+     * Scrive i tag associati ad ogni operazione, se presenti.
+     */
     @Override
     public void save(List<Operation> items) {
         try {
@@ -147,6 +158,10 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
         }
     }
 
+    /**
+     * Elimina un'operazione specifica dal file XML in base al suo ID.
+     * Rilegge il file, rimuove l'elemento corrispondente e riscrive il file aggiornato.
+     */
     @Override
     public void delete(String id) {
         try {
@@ -175,6 +190,10 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
         }
     }
 
+    /**
+     * Elimina tutte le operazioni dal file XML.
+     * Crea un backup del file originale prima di sovrascriverlo con un file vuoto.
+     */
     @Override
     public void delete(boolean all) {
         if (all) {

@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.jbudget125637.persistency;
 
 import it.unicam.cs.mpgc.jbudget125637.model.Tags;
 import org.w3c.dom.*;
+
 import javax.xml.parsers.*;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,11 @@ public class TagXmlRepository implements IOOperationRepository<Tags> {
 
     private final String filePath = "app/data/tags.xml";
 
+    /**
+     * Legge il file XML e restituisce una lista di Tags.
+     *
+     * @return Lista di Tags letti dal file XML.
+     */
     @Override
     public List<Tags> read() {
         List<Tags> tags = new ArrayList<>();
@@ -25,7 +31,7 @@ public class TagXmlRepository implements IOOperationRepository<Tags> {
                 String id = tagElement.getAttribute("id");
                 String name = tagElement.getAttribute("name");
                 //if (tagElement.getAttribute("isParent").equals("true")) {
-                    tags.add(new Tags(id, name,true));
+                tags.add(new Tags(id, name, true));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,6 +39,11 @@ public class TagXmlRepository implements IOOperationRepository<Tags> {
         return tags;
     }
 
+    /**
+     * Legge il file XML e restituisce una lista di Tags, includendo i figli.
+     *
+     * @return Lista di Tags letti dal file XML, inclusi i figli.
+     */
     public List<Tags> readChild() {
         List<Tags> tags = new ArrayList<>();
         try (FileInputStream in = new FileInputStream("app/data/tags.xml")) {
@@ -49,7 +60,7 @@ public class TagXmlRepository implements IOOperationRepository<Tags> {
                 // Aggiungo il tag principale
                 String tagId = tag.getAttribute("id");
                 String tagName = tag.getAttribute("name");
-                tags.add(new Tags(tagId, tagName,true));
+                tags.add(new Tags(tagId, tagName, true));
 
                 // Aggiungo tutti i figli nell'ordine
                 NodeList childList = tag.getElementsByTagName("chtag");
@@ -57,7 +68,7 @@ public class TagXmlRepository implements IOOperationRepository<Tags> {
                     Element sub = (Element) childList.item(j);
                     String childId = sub.getAttribute("id");
                     String childName = sub.getAttribute("name");
-                    tags.add(new Tags(childId, childName,false));
+                    tags.add(new Tags(childId, childName, false));
                 }
             }
 
@@ -67,7 +78,7 @@ public class TagXmlRepository implements IOOperationRepository<Tags> {
         return tags;
     }
 
-
+    //implementazioni future non necessarie per il progetto attuale
     @Override
     public void save(List<Tags> items) {
         // Implementazione per scrivere su tags.xml

@@ -30,7 +30,7 @@
             </RadioButton>
             <DatePicker fx:id="add_data" layoutX="76.0" layoutY="104.0" prefHeight="26.0" prefWidth="150.0" />
             <Label layoutX="20.0" layoutY="109.0" text="Data" />
-            <CheckBox fx:id="add_rep" layoutX="392.0" layoutY="108.0" mnemonicParsing="false" onAction="#setVisible" text="Ripetizione" />
+            <CheckBox fx:id="add_rep" layoutX="392.0" layoutY="108.0" mnemonicParsing="false" text="Ripetizione" />
             <ChoiceBox fx:id="add_freq" layoutX="341.0" layoutY="176.0" prefWidth="150.0" />
             <Label layoutX="341.0" layoutY="151.0" text="Frequenza" />
             <Label layoutX="540.0" layoutY="151.0" text="Occorrenze" />
@@ -71,10 +71,10 @@
             </children>
          </HBox>
 
-            <CheckBox fx:id="add_rata" layoutX="490.0" layoutY="109.0" mnemonicParsing="false" onAction="#setVisible" text="Rata" />
+            <CheckBox fx:id="add_rata" layoutX="490.0" layoutY="109.0" mnemonicParsing="false" text="Rata" />
             <ListView fx:id="add_tags" layoutX="22.0" layoutY="318.0" prefHeight="219.0" prefWidth="170.0" />
             <Button fx:id="add_deltag" layoutX="226.0" layoutY="389.0" mnemonicParsing="false" onAction="#delTag" text="Rimuovi tag" />
-            <TableView fx:id="add_recenti" layoutX="686.0" layoutY="89.0" prefHeight="402.0" prefWidth="232.0">
+            <TableView fx:id="add_recenti" layoutX="686.0" layoutY="89.0" prefHeight="275.0" prefWidth="232.0">
                 <columns>
                     <TableColumn fx:id="add_recautore" prefWidth="75.0" text="Autore" />
                     <TableColumn fx:id="add_recimporto" prefWidth="75.0" text="Importo" />
