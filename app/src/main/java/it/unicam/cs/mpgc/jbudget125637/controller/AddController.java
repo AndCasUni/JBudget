@@ -13,7 +13,6 @@ import java.util.List;
 
 public class AddController {
 
-    // UI Components
     @FXML private TextField add_imp;
     @FXML private TextField add_desc;
     @FXML private DatePicker add_data;
@@ -32,7 +31,6 @@ public class AddController {
     @FXML private ListView<String> add_tags;
     @FXML private ToggleGroup main_tag;
 
-    // Services
     private final OperationService operationService;
     private final TagService tagService;
     private final AuthorService authorService;
@@ -52,6 +50,7 @@ public class AddController {
 
     @FXML
     public void initialize() {
+        RefreshService.registerAddController(this);
         initializeServices();
         setupTableColumns();
         setupFrequencyOptions();
@@ -118,6 +117,10 @@ public class AddController {
         loadAuthors();
     }
 
+    /**
+     * colleziona i dati dal form, li valida, crea le operazioni (gestendo eventuali ricorrenze)
+     * e le salva nel servizio. Mostra messaggi di successo o errore a seconda dell'esito.
+     */
     @FXML
     public void addInsert() {
         try {
@@ -134,6 +137,7 @@ public class AddController {
             showSuccessMessage();
             cleanAll();
             refreshRecentOperationsList();
+            RefreshService.refreshConfrontoTab();
 
         } catch (Exception e) {
             showError("Errore durante l'inserimento: " + e.getMessage());
@@ -156,14 +160,32 @@ public class AddController {
         );
     }
 
+    /**
+     * Crea una lista di operazioni basate sui dati forniti, gestendo eventuali ricorrenze.
+     *
+     * @param operationData i dati dell'operazione da creare
+     * @return una lista di operazioni create
+     */
     private List<Operation> createOperations(OperationData operationData) {
         double amount = calculateAmount(operationData);
         List<String> dates = calculateDates(operationData);
         List<Tags> tags = resolveTags(operationData.getSelectedTags());
 
+        refreshOperationsList();
+
         return recurrenceService.generateOperations(
-                operationData, amount, dates, tags, getNextOperationId()
+                operationData, amount, dates, tags, operationService
         );
+    }
+
+    private void refreshOperationsList() {
+        operations = operationService.getAllOperations();
+    }
+
+    public void refreshRecentOperationsList() {
+        ObservableList<OperationRow> recentOperations = operationService.getRecentOperations(10);
+        add_recenti.setItems(recentOperations);
+        updateMaxId();
     }
 
     private double calculateAmount(OperationData operationData) {
@@ -199,27 +221,22 @@ public class AddController {
         return resolvedTags;
     }
 
-    private String getNextOperationId() {
-        return String.valueOf(Integer.parseInt(maxId) + 1);
-    }
-
     @FXML
     public void cleanAll() {
-        FormCleaner.cleanAll(
-                add_imp, add_desc, add_data, add_autore,
-                add_entrata, add_out, add_rep, add_rata,
-                add_freq, add_occ, add_tags, main_tag, add_sottocat
-        );
+        add_imp.clear();
+        add_desc.clear();
+        add_data.setValue(null);
+        add_autore.getSelectionModel().clearSelection();
+        add_entrata.setSelected(false);
+        add_out.setSelected(false);
+        add_rep.setSelected(false);
+        add_rata.setSelected(false);
+        add_freq.getSelectionModel().clearSelection();
+        add_occ.clear();
+        add_tags.getItems().clear();
+        main_tag.selectToggle(null);
+        add_sottocat.getSelectionModel().clearSelection();
         updateFrequencyVisibility();
-    }
-
-    public void refreshRecentOperationsList() {
-        operations = operationService.getAllOperations();
-        ObservableList<OperationRow> recentOperations =
-                operationService.getRecentOperations(10);
-
-        add_recenti.setItems(recentOperations);
-        updateMaxId();
     }
 
     private void updateMaxId() {

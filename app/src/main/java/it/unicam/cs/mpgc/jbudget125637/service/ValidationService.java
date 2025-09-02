@@ -6,6 +6,11 @@ import java.util.List;
 
 public class ValidationService {
 
+    /**
+     * Valida i dati dell'operazione.
+     * @param operationData dati dell'operazione da validare.
+     * @return true se i dati sono validi, false altrimenti.
+     */
     public boolean validateOperationData(OperationData operationData) {
         if (!validateRequiredFields(operationData)) {
             return false;
@@ -27,6 +32,11 @@ public class ValidationService {
         return validateTags(operationData.getSelectedTags());
     }
 
+    /**
+     * Valida che i campi obbligatori non siano null o vuoti.
+     * @param operationData dati dell'operazione da validare.
+     * @return true se tutti i campi obbligatori sono validi, false altrimenti.
+     */
     private boolean validateRequiredFields(OperationData operationData) {
         return operationData.getImporto() != null && !operationData.getImporto().isBlank() &&
                 operationData.getDescrizione() != null && !operationData.getDescrizione().isBlank() &&
@@ -36,6 +46,11 @@ public class ValidationService {
                 operationData.getSelectedTags() != null && !operationData.getSelectedTags().isEmpty();
     }
 
+    /**
+     * Valida che l'importo sia un numero valido.
+     * @param amount importo da validare.
+     * @return true se l'importo è valido, false altrimenti.
+     */
     private boolean validateAmount(String amount) {
         try {
             Double.parseDouble(amount);
@@ -45,10 +60,20 @@ public class ValidationService {
         }
     }
 
+    /**
+     * Valida che la frequenza non sia null o vuota.
+     * @param frequency frequenza da validare.
+     * @return true se la frequenza è valida, false altrimenti.
+     */
     private boolean validateFrequency(String frequency) {
         return frequency != null && !frequency.isBlank();
     }
 
+    /**
+     * Valida che le occorrenze siano un numero intero positivo.
+     * @param occurrences occorrenze da validare.
+     * @return true se le occorrenze sono valide, false altrimenti.
+     */
     private boolean validateOccurrences(String occurrences) {
         try {
             int occ = Integer.parseInt(occurrences);
@@ -58,10 +83,21 @@ public class ValidationService {
         }
     }
 
+    /**
+     * Valida che la lista di tag non sia null, non sia vuota e contenga al massimo 3 tag.
+     * @param tags lista di tag da validare.
+     * @return true se la lista di tag è valida, false altrimenti.
+     */
     private boolean validateTags(List<String> tags) {
         return tags != null && !tags.isEmpty() && tags.size() <= 3;
     }
 
+    /**
+     * Valida l'aggiunta di un nuovo tag alla lista esistente.
+     * @param tagToAdd tag da aggiungere.
+     * @param existingTags lista di tag esistenti.
+     * @return true se il tag può essere aggiunto, false altrimenti.
+     */
     public boolean validateTagAddition(String tagToAdd, List<String> existingTags) {
         if (tagToAdd == null || tagToAdd.isBlank()) {
             return false;

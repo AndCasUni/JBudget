@@ -19,6 +19,11 @@ public class SettingsManager {
     private static final String CURRENCY_XML_PATH = "app/data/currency.xml";
     private static final String DEFAULT_CURRENCY = "EUR";
 
+    /** Restituisce la valuta attuale degli importi nelle operazioni.
+     * Se non è stata impostata, restituisce "EUR" come valore di default.
+     *
+     * @return La valuta attuale.
+     */
     public String getCurrency() {
         return loadProperties().getProperty("currency", DEFAULT_CURRENCY);
     }
@@ -35,6 +40,10 @@ public class SettingsManager {
         saveProperty("darkMode", Boolean.toString(darkMode));
     }
 
+    /** Carica le valute disponibili dal file XML.
+     *
+     * @return Una lista di oggetti Currency rappresentanti le valute disponibili.
+     */
     public List<Currency> loadCurrencyCodes() {
         List<Currency> currencies = new ArrayList<>();
         try (FileInputStream in = new FileInputStream(CURRENCY_XML_PATH)) {
@@ -56,6 +65,11 @@ public class SettingsManager {
         return currencies;
     }
 
+    /** Carica le proprietà dal file di configurazione.
+     * Se il file non esiste, restituisce un oggetto Properties vuoto.
+     *
+     * @return Le proprietà caricate.
+     */
     private Properties loadProperties() {
         Properties props = new Properties();
         File settingsFile = new File(SETTINGS_FILE_PATH);
@@ -64,12 +78,17 @@ public class SettingsManager {
             try (FileInputStream in = new FileInputStream(settingsFile)) {
                 props.load(in);
             } catch (Exception e) {
-                // Log dell'errore ma continuiamo con i valori di default
             }
         }
         return props;
     }
 
+    /** Salva una proprietà nel file di configurazione.
+     * Crea la directory di configurazione se non esiste.
+     *
+     * @param key La chiave della proprietà.
+     * @param value Il valore della proprietà.
+     */
     private void saveProperty(String key, String value) {
         Properties props = loadProperties();
         props.setProperty(key, value);

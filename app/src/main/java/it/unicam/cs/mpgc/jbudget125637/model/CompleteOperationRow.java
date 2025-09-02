@@ -5,6 +5,9 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 public class CompleteOperationRow {
 
     private final StringProperty author;
@@ -26,7 +29,6 @@ public class CompleteOperationRow {
     }
 
 
-    // Getter tradizionali
     public String getAuthor() { return author.get(); }
     public String getDescription() { return description.get(); }
     public String getDate() { return date.get(); }
@@ -35,7 +37,6 @@ public class CompleteOperationRow {
     public String getTag2() { return tag2.get(); }
     public String getTag3() { return tag3.get(); }
 
-    // Property getter per TableView
     public StringProperty authorProperty() { return author; }
     public StringProperty descriptionProperty() { return description; }
     public StringProperty dateProperty() { return date; }
@@ -43,4 +44,12 @@ public class CompleteOperationRow {
     public StringProperty tag1Property() { return tag1; }
     public StringProperty tag2Property() { return tag2; }
     public StringProperty tag3Property() { return tag3; }
+    public String getFormattedDate() {
+        try {
+            LocalDate localDate = LocalDate.parse(date.get(), DateTimeFormatter.ISO_DATE);
+            return localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } catch (Exception e) {
+            return date.get();
+        }
+    }
 }

@@ -18,8 +18,8 @@ public class TagService {
 
     /**
      * Restituisce tutte le sottocategorie di una categoria specifica
-     * @param category La categoria padre (null per tutte le sottocategorie)
-     * @return Lista di sottocategorie
+     * @param category Nome della categoria
+     * @return Lista di sottocategorie, o tutte se category è null o vuota
      */
     public List<String> getSubcategoriesByCategory(String category) {
         if (category == null || category.isBlank()) {
@@ -30,50 +30,22 @@ public class TagService {
 
     /**
      * Restituisce tutti i tag (padri e figli)
-     * @return Lista completa di tutti i tag
+     * @return Lista di tutti i tag
      */
     public List<Tags> getAllTags() {
         return tagRepository.readChild();
     }
 
     /**
-     * Restituisce solo i tag padre (categorie principali)
-     * @return Lista delle categorie principali
-     */
-    public List<Tags> getParentTags() {
-        return tagRepository.read();
-    }
-
-    /**
-     * Restituisce i tag figli di una categoria specifica
-     * @param parentTag La categoria padre
-     * @return Lista dei tag figli
+     * Restituisce i tag figli di una macrocategoria
+     * @param parentTag Nome della macrocategoria
+     * @return Lista di tag figli
      */
     public List<String> getChildTags(String parentTag) {
         return tagHierarchy.getOrDefault(parentTag, Collections.emptyList());
     }
 
-    /**
-     * Espande i tag selezionati includendo tutti i tag figli
-     * @param selectedTags Lista di tag selezionati
-     * @return Set di tag espansi
-     */
-    public Set<String> expandTags(List<String> selectedTags) {
-        Set<String> expandedTags = new HashSet<>();
-        for (String tag : selectedTags) {
-            expandedTags.add(tag);
-            expandedTags.addAll(getChildTags(tag));
-        }
-        return expandedTags;
-    }
 
-    /**
-     * Restituisce la gerarchia completa dei tag
-     * @return Mappa con categoria padre -> lista figli
-     */
-    public Map<String, List<String>> getTagHierarchy() {
-        return Collections.unmodifiableMap(tagHierarchy);
-    }
 
     /**
      * Restituisce tutte le sottocategorie senza filtro
@@ -120,39 +92,4 @@ public class TagService {
         return hierarchy;
     }
 
-    /**
-     * Verifica se un tag esiste
-     * @param tagName Nome del tag da verificare
-     * @return true se il tag esiste
-     */
-    public boolean tagExists(String tagName) {
-        List<Tags> allTags = getAllTags();
-        return allTags.stream()
-                .anyMatch(tag -> tag.description().equalsIgnoreCase(tagName));
-    }
-
-    /**
-     * Verifica se un tag è una categoria padre
-     * @param tagName Nome del tag da verificare
-     * @return true se è una categoria padre
-     */
-    public boolean isParentTag(String tagName) {
-        List<Tags> parentTags = getParentTags();
-        return parentTags.stream()
-                .anyMatch(tag -> tag.description().equalsIgnoreCase(tagName));
-    }
-
-    /**
-     * Restituisce la categoria padre di una sottocategoria
-     * @param subcategory Sottocategoria
-     * @return Nome della categoria padre, o null se non trovata
-     */
-    public String getParentCategory(String subcategory) {
-        for (Map.Entry<String, List<String>> entry : tagHierarchy.entrySet()) {
-            if (entry.getValue().contains(subcategory)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
 }

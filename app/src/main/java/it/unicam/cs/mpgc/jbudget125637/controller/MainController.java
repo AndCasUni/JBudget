@@ -7,8 +7,6 @@ import javafx.scene.control.Alert.AlertType;
 
 public class MainController {
 
-    @FXML
-    private TabPane tabPane;
     @FXML private Tab tabAggiungi;
     @FXML private Tab tabRevisione;
     @FXML private Tab tabConfronto;
@@ -27,6 +25,11 @@ public class MainController {
         }
     }
 
+    /** Carica il contenuto di una tab da un file FXML.
+     *
+     * @param tab       La tab in cui caricare il contenuto.
+     * @param fxmlPath  Il percorso del file FXML.
+     */
     private void loadTabContent(Tab tab, String fxmlPath) {
         try {
             tab.setContent(FXMLLoader.load(getClass().getResource(fxmlPath)));
@@ -43,4 +46,6 @@ public class MainController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+
 }

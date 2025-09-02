@@ -23,6 +23,7 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
      * Legge il file XML e converte ogni elemento <operation> in un oggetto Operation.
      * Gestisce la conversione delle date dal formato "dd/MM/yyyy" a "yyyy-MM-dd".
      * Legge i tag associati ad ogni operazione, se presenti.
+     * @return Lista di operazioni lette dal file XML
      */
     @Override
     public List<Operation> read() {
@@ -45,27 +46,23 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
                 String description = el.getElementsByTagName("description").item(0).getTextContent();
                 String rawDate = el.getElementsByTagName("date").item(0).getTextContent();
 
-                // conversione in ISO per il model
                 String date;
                 try {
                     LocalDate parsed = LocalDate.parse(rawDate, inputFormatter);
                     date = parsed.format(isoFormatter);
                 } catch (Exception e) {
-                    date = rawDate; // fallback
+                    date = rawDate;
                 }
 
                 double amount = Double.parseDouble(el.getElementsByTagName("amount").item(0).getTextContent());
 
-                // Leggi i tag
                 List<Tags> tags = new ArrayList<>();
                 NodeList tagList = el.getElementsByTagName("tag");
                 for (int j = 0; j < tagList.getLength(); j++) {
                     Element tagElement = (Element) tagList.item(j);
 
-                    // Prendo l’attributo id (se presente)
                     String tagId = tagElement.hasAttribute("id") ? tagElement.getAttribute("id") : "";
 
-                    // Prendo il contenuto del tag (es. "Stipendio")
                     String tagName = tagElement.getTextContent();
 
                     Boolean isParent = tagElement.hasAttribute("isParent");
@@ -86,6 +83,8 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
      * Salva una lista di oggetti Operation nel file XML.
      * Converte le date dal formato "yyyy-MM-dd" a "dd/MM/yyyy" per la memorizzazione.
      * Scrive i tag associati ad ogni operazione, se presenti.
+     * Sovrascrive il file esistente con i nuovi dati.
+     * @param items Lista di operazioni da salvare
      */
     @Override
     public void save(List<Operation> items) {
@@ -129,7 +128,6 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
                 amountElem.appendChild(doc.createTextNode(String.valueOf(op.getAmount())));
                 opElem.appendChild(amountElem);
 
-                // Se i tag esistono, li scrivo
                 Element tagsElem = doc.createElement("tags");
                 if (op.getTags() != null && !op.getTags().isEmpty()) {
                     for (Tags t : op.getTags()) {
@@ -157,10 +155,22 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
             e.printStackTrace();
         }
     }
+    /**
+     * Aggiunge nuove operazioni a quelle esistenti senza sovrascrivere.
+     * @param newOperations Lista di nuove operazioni da aggiungere
+     */
+    public void appendOperations(List<Operation> newOperations) {
+        List<Operation> existingOperations = read();
 
+        List<Operation> allOperations = new ArrayList<>(existingOperations);
+        allOperations.addAll(newOperations);
+
+        save(allOperations);
+    }
     /**
      * Elimina un'operazione specifica dal file XML in base al suo ID.
      * Rilegge il file, rimuove l'elemento corrispondente e riscrive il file aggiornato.
+     * @param id ID dell'operazione da eliminare
      */
     @Override
     public void delete(String id) {
@@ -193,6 +203,7 @@ public class OperationXmlRepository implements IOOperationRepository<Operation> 
     /**
      * Elimina tutte le operazioni dal file XML.
      * Crea un backup del file originale prima di sovrascriverlo con un file vuoto.
+     * @param all Se true, elimina tutte le operazioni
      */
     @Override
     public void delete(boolean all) {

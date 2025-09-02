@@ -16,7 +16,6 @@ public class OperationRow {
     public OperationRow(String author, String date, Double amount) {
         this.author = new SimpleStringProperty(author);
 
-        // converto da yyyy-MM-dd → dd/MM/yyyy
         LocalDate parsedDate = LocalDate.parse(date, INPUT_FORMAT);
         String formattedDate = parsedDate.format(OUTPUT_FORMAT);
 

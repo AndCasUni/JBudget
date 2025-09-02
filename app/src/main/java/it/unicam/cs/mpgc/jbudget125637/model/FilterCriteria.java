@@ -1,4 +1,4 @@
-package it.unicam.cs.mpgc.jbudget125637.service;
+package it.unicam.cs.mpgc.jbudget125637.model;
 
 import java.time.LocalDate;
 import java.util.List;

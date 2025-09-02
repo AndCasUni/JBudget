@@ -34,7 +34,6 @@ public class OperationData {
         this.selectedTags = selectedTags;
     }
 
-    // Getters
     public String getImporto() { return importo; }
     public String getDescrizione() { return descrizione; }
     public LocalDate getData() { return data; }

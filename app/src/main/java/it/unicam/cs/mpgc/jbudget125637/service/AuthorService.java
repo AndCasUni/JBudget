@@ -12,6 +12,11 @@ public class AuthorService {
         this.userRepository = new UserXmlRepository();
     }
 
+    /**
+     * Restituisce una lista di tutti i nomi degli autori presenti nel repository.
+     *
+     * @return Lista di nomi degli autori
+     */
     public List<String> getAllAuthorNames() {
         return userRepository.read().stream()
                 .map(Author::name)

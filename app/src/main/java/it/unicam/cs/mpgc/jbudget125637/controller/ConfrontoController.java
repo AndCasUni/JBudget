@@ -6,6 +6,7 @@ import it.unicam.cs.mpgc.jbudget125637.model.Tags;
 import it.unicam.cs.mpgc.jbudget125637.persistency.OperationXmlRepository;
 import it.unicam.cs.mpgc.jbudget125637.persistency.TagXmlRepository;
 import it.unicam.cs.mpgc.jbudget125637.persistency.UserXmlRepository;
+import it.unicam.cs.mpgc.jbudget125637.service.RefreshService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -50,22 +51,20 @@ public class ConfrontoController {
         this.tagRepository = new TagXmlRepository();
         this.userRepository = new UserXmlRepository();
 
+        RefreshService.registerConfrontoController(this);
         loadAllData();
         setupDateListeners();
         reloadVisualizations();
     }
 
     /**
-     * Sets up listeners for date pickers to automatically reload data when dates change
+     * inizializza i listener per i DatePicker
      */
     private void setupDateListeners() {
         conf_dadata.valueProperty().addListener((obs, oldVal, newVal) -> reloadVisualizations());
         conf_adata.valueProperty().addListener((obs, oldVal, newVal) -> reloadVisualizations());
     }
 
-    /**
-     * Loads all data from repositories
-     */
     public void loadAllData() {
         allAuthors = userRepository.read();
         allOperations = operationRepository.read();
@@ -73,7 +72,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Reloads all visualizations with current data and filters
+     * Ricarica tutte le visualizzazioni basate sui dati filtrati
      */
     public void reloadVisualizations() {
         filterOperationsByDate();
@@ -83,7 +82,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Filters operations based on selected date range
+     * Filtra le operazioni in base alle date selezionate
      */
     private void filterOperationsByDate() {
         LocalDate startDate = conf_dadata.getValue();
@@ -96,7 +95,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Creates a date filter predicate based on start and end dates
+     * Crea un predicato per filtrare le operazioni in base alle date
      */
     private Predicate<Operation> createDateFilter(LocalDate startDate, LocalDate endDate) {
         return operation -> {
@@ -105,13 +104,13 @@ public class ConfrontoController {
                 return (startDate == null || !operationDate.isBefore(startDate)) &&
                         (endDate == null || !operationDate.isAfter(endDate));
             } catch (Exception e) {
-                return false; // Skip operations with invalid dates
+                return false;
             }
         };
     }
 
     /**
-     * Updates both pie charts
+     * aggiorna entrambi i grafici a torta
      */
     private void updatePieCharts() {
         updatePieChart(conf_tortain, amount -> amount > 0, "Entrate");
@@ -119,7 +118,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Updates a specific pie chart with filtered data
+     * aggiorna un grafico a torta specifico
      */
     private void updatePieChart(PieChart chart, Predicate<Double> amountFilter, String title) {
         if (filteredOperations.isEmpty() || allTags.isEmpty()) {
@@ -132,7 +131,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Creates pie chart data based on amount filter
+     * crea i dati per il grafico a torta basati sul filtro di importo
      */
     private ObservableList<PieChart.Data> createPieChartData(Predicate<Double> amountFilter) {
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
@@ -148,7 +147,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Calculates total amount for a specific tag and amount filter
+     * calcola il totale per un tag specifico basato sul filtro di importo
      */
     private double calculateTagTotal(Tags tag, Predicate<Double> amountFilter) {
         return filteredOperations.stream()
@@ -159,7 +158,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Checks if operation has the specified tag
+     * controlla se un'operazione ha un tag specifico
      */
     private boolean hasTag(Operation operation, Tags tag) {
         return operation.getTags().stream()
@@ -167,7 +166,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Configures pie chart appearance
+     * configura le proprietà del grafico a torta
      */
     private void configurePieChart(PieChart chart, ObservableList<PieChart.Data> data, String title) {
         chart.setTitle(title);
@@ -179,7 +178,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Updates both stacked bar charts
+     * aggiorna entrambi i grafici a barre impilate
      */
     private void updateStackedBarCharts() {
         if (filteredOperations.isEmpty() || allTags.isEmpty() || allAuthors.isEmpty()) {
@@ -201,7 +200,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Calculates data for stacked bar chart based on amount filter
+     * calcola i dati per il grafico a barre impilate basati sul filtro di importo
      */
     private BarChartData calculateBarChartData(Predicate<Double> amountFilter) {
         Map<String, Map<String, Double>> totalsMap = initializeTotalsMap();
@@ -224,7 +223,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Initializes totals map with authors and tags
+     * inizializza la mappa dei totali per autori e tag
      */
     private Map<String, Map<String, Double>> initializeTotalsMap() {
         Map<String, Map<String, Double>> totalsMap = new HashMap<>();
@@ -239,7 +238,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Creates bar chart series from totals map
+     * crea le serie per il grafico a barre impilate
      */
     private BarChartData createBarChartSeries(Map<String, Map<String, Double>> totalsMap) {
         ObservableList<StackedBarChart.Series<String, Number>> seriesList = FXCollections.observableArrayList();
@@ -262,7 +261,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Updates the summary report list view
+     * aggiorna il resoconto finanziario
      */
     private void updateSummaryReport() {
         if (filteredOperations.isEmpty()) {
@@ -275,7 +274,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Calculates financial summary from filtered operations
+     * calcola il resoconto finanziario
      */
     private FinancialSummary calculateFinancialSummary() {
         LocalDate today = LocalDate.now();
@@ -292,7 +291,6 @@ public class ConfrontoController {
                     summary.addExecuted(amount);
                 }
             } catch (Exception e) {
-                // Log error but continue processing other operations
                 System.err.println("Errore elaborazione operazione: " + operation);
             }
         });
@@ -301,7 +299,7 @@ public class ConfrontoController {
     }
 
     /**
-     * Displays financial summary in the list view
+     * mostra il resoconto finanziario nella ListView
      */
     private void displayFinancialSummary(FinancialSummary summary) {
         conf_resoconto.getItems().clear();
@@ -315,16 +313,19 @@ public class ConfrontoController {
         );
     }
 
-    /**
-     * Shows message when no operations are available
-     */
     private void showNoOperationsMessage() {
         conf_resoconto.getItems().clear();
         conf_resoconto.getItems().add("Nessuna operazione disponibile");
     }
 
+    /**
+     * Record per contenere i dati del grafico a barre impilate
+     */
     private record BarChartData(ObservableList<StackedBarChart.Series<String, Number>> series) {}
 
+    /**
+     * Classe interna per gestire il resoconto finanziario
+     */
     private static class FinancialSummary {
         private double executedIncome = 0;
         private double executedExpense = 0;
